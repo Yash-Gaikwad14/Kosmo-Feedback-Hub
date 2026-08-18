@@ -1,8 +1,9 @@
 # Architecture Decision Records (ADRs)
 ## Kosmo Feedback Hub & Auto-Organizer
 
-- **Document Version**: 1.0.0
+- **Document Version**: 2.0.0
 - **Status**: Active
+- **Last Updated**: 2026-08-19
 
 ---
 
@@ -21,9 +22,7 @@ We choose a **Hybrid Architecture** where a lightweight Node.js Express server a
 - **Pros**:
   - Leverages existing PowerShell script logic without rewriting sequence rules.
   - Express server handles file uploads (`multer`), web UI static serving, and REST endpoints efficiently.
-  - Simple local setup with zero external database requirements.
-- **Cons**:
-  - Requires Windows PowerShell environment (which matches user's native Windows OS).
+  - Simple setup.
 
 ---
 
@@ -33,16 +32,10 @@ We choose a **Hybrid Architecture** where a lightweight Node.js Express server a
 **ACCEPTED**
 
 ### Context
-Initially, raw feedback screenshots were placed loose in the project root directory (`c:\Users\Yashg\Downloads\Kosmo`). As project files (scripts, docs, node packages) grow, mixing raw images in the root folder creates clutter.
+Initially, raw feedback screenshots were placed loose in the project root directory. As project files grow, mixing raw images in the root folder creates clutter.
 
 ### Decision
-Establish `c:\Users\Yashg\Downloads\Kosmo\RAW_IMAGES` as the designated raw image repository. All new uploads from the web app will land in `RAW_IMAGES/`. Backend scripts will read from both `RAW_IMAGES/` and root for backward compatibility.
-
-### Consequences
-- **Pros**:
-  - Clean project root directory.
-  - Team members have a clear single location for raw assets.
-  - Raw images are permanently preserved before processing into `APP`, `UI`, `BOTH`, `PROBLEMS`.
+Establish `c:\Users\Yashg\Downloads\Kosmo\RAW_IMAGES` as the designated raw image repository. All new uploads from the web app land in `RAW_IMAGES/`.
 
 ---
 
@@ -52,17 +45,10 @@ Establish `c:\Users\Yashg\Downloads\Kosmo\RAW_IMAGES` as the designated raw imag
 **ACCEPTED**
 
 ### Context
-Certain user feedback (e.g. `Additional_Winter872`, `Ankit Jain`, `AttorneyOk1025`) contains both UI critiques and general App utility feedback or bugs. Moving a file to only one folder would obscure relevant feedback for other teams.
+Certain user feedback contains both UI critiques and general App utility feedback or bugs.
 
 ### Decision
-Implement **Non-Destructive Copying (`Copy-Item -Force`)** where a single raw screenshot can be placed into multiple domain folders (`APP`, `UI`, `BOTH`, `PROBLEMS`) under separate 1-indexed filenames (e.g. `APP-53.jpeg`, `UI-29.jpeg`, `BOTH-25.jpeg`, `PROBLEM-21.jpeg`).
-
-### Consequences
-- **Pros**:
-  - Complete feedback coverage across all functional domains.
-  - Each folder maintains independent, zero-gap sequential numbering (`1..N`).
-- **Cons**:
-  - Disk storage is multiplied across copies (negligible for image files ~100KB each).
+Implement **Non-Destructive Copying (`Copy-Item -Force`)** where a single raw screenshot can be placed into multiple domain folders (`APP`, `UI`, `BOTH`, `PROBLEMS`) under separate 1-indexed filenames.
 
 ---
 
@@ -71,14 +57,73 @@ Implement **Non-Destructive Copying (`Copy-Item -Force`)** where a single raw sc
 ### Status
 **ACCEPTED**
 
-### Context
-The Web UI needs to be fast, responsive, wowed at first glance, and easy to run without heavy build steps (e.g. Webpack/Next.js complex setup).
-
 ### Decision
 Use vanilla HTML5, CSS3 with custom variables/glassmorphism, and ES6 JavaScript.
 
-### Consequences
-- **Pros**:
-  - Instant page load speed (< 50ms).
-  - No build pipeline failures or node_modules bloat for frontend assets.
-  - Rich visual aesthetics with custom dark theme, gradient cards, and smooth CSS transitions.
+---
+
+## ADR-005: Team Access Passcode Authentication Middleware
+
+### Status
+**ACCEPTED**
+
+### Context
+The user requested that the web application must be restricted strictly to team members (no open public access).
+
+### Decision
+Implement **Team Passcode Authentication Middleware (`authenticateTeam`)** in `server.js` guarding all REST API routes (`/api/*`) and image static paths (`/images/*`). Requests without `x-team-passcode` header or query string parameter return HTTP `401 Unauthorized`. Frontend displays a glassmorphic login modal overlay prompting for the Team Passcode (`kosmo2026`).
+
+---
+
+## ADR-006: Render Cloud Deployment & Cross-Platform Native Organizer Engine
+
+### Status
+**ACCEPTED**
+
+### Context
+When deploying to cloud container platforms like Render (Linux/Debian containers), PowerShell binaries (`powershell`) might not be pre-installed in standard Node.js base images.
+
+### Decision
+Add a **Native Node.js Fallback Organizer Engine (`runNativeNodeOrganizer`)** in `server.js`. If `exec('powershell ...')` fails or is unavailable on Linux, `server.js` seamlessly parses array targets in `organize_feedback.ps1`, clears destination folders, and executes zero-gap copy/renaming logic using native Node `fs` methods.
+
+---
+
+## ADR-007: Team Member User Profiles & Upload Attribution Ledger (`config/db.json`)
+
+### Status
+**ACCEPTED**
+
+### Context
+The user requested "who added what" tracking so the team can see which team member submitted which feedback screenshot.
+
+### Decision
+Implement a persistent JSON file database at [`config/db.json`](file:///c:/Users/Yashg/Downloads/Kosmo/config/db.json) storing user profile definitions (`Yash`, `Priyal`, `Dipak`, `Ankit`, `Kunal`), metadata mappings (`uploadedBy`, `channel`, `userHandle`, `severity`, `topic`, `notes`, `uploadedAt`), and dynamic user addition via `POST /api/add-user`.
+
+---
+
+## ADR-008: Content-Based Smart Sorting Algorithm
+
+### Status
+**ACCEPTED**
+
+### Context
+Sorting feedback items by file names (`WhatsApp Image...`) provides zero context on bug severity or feedback topic relevance.
+
+### Decision
+Implement a **Content-Based Smart Sorting Algorithm** in `GET /api/images`:
+- `sort=severity`: Orders items by priority (`CRITICAL` -> `HIGH` -> `MEDIUM` -> `LOW`).
+- `sort=topic`: Groups items by functional issue domain (Response Speed, Auto-Scroll, Dark Mode, etc.).
+- `sort=user`: Filters and sorts items by team member profile.
+
+---
+
+## ADR-009: Common Problem Finder NLP Clustering Engine
+
+### Status
+**ACCEPTED**
+
+### Context
+Product managers need an aggregated view of top recurring user complaints across all feedback screenshots.
+
+### Decision
+Implement **Common Problem Finder NLP Cluster Engine** in `GET /api/common-problems`. The server aggregates recurring problem reports into frequency clusters with user attribution samples and severity indicators, rendered visually as progress bar widgets on the web UI dashboard.
