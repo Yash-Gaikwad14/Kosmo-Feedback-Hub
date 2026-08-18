@@ -199,7 +199,79 @@ app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res)
     }
 });
 
-// 4. Trigger Auto-Organizer PowerShell Script
+// Helper: Parse script array from organize_feedback.ps1
+function parsePs1Array(content, varName) {
+    const regex = new RegExp(`\\$${varName}\\s*=\\s*@\\(([\\s\\S]*?)\\)`, 'i');
+    const match = content.match(regex);
+    if (!match) return [];
+    
+    const lines = match[1].split('\n');
+    const items = [];
+    lines.forEach(l => {
+        const trimmed = l.trim();
+        if (trimmed.startsWith('"') && trimmed.includes('.')) {
+            const m = trimmed.match(/"([^"]+)"/);
+            if (m) items.push(m[1]);
+        }
+    });
+    return items;
+}
+
+// Native Node.js Organizer (Runs on Linux / Render when PowerShell is absent)
+function runNativeNodeOrganizer() {
+    const scriptPath = path.join(BASE_DIR, 'organize_feedback.ps1');
+    const content = fs.readFileSync(scriptPath, 'utf-8');
+
+    const appImages = parsePs1Array(content, 'appImages');
+    const uiImages = parsePs1Array(content, 'uiImages');
+    const bothImages = parsePs1Array(content, 'bothImages');
+    const problemImages = parsePs1Array(content, 'problemImages');
+
+    // Helper: Clear folder
+    function clearFolder(folderName) {
+        const folderPath = path.join(BASE_DIR, folderName);
+        if (fs.existsSync(folderPath)) {
+            fs.readdirSync(folderPath).forEach(f => {
+                const fp = path.join(folderPath, f);
+                if (fs.statSync(fp).isFile()) fs.unlinkSync(fp);
+            });
+        } else {
+            fs.mkdirSync(folderPath, { recursive: true });
+        }
+    }
+
+    // Helper: Copy & rename
+    function copyRenamed(items, folderName, prefix) {
+        let counter = 1;
+        const logs = [];
+        items.forEach(img => {
+            let src = path.join(RAW_DIR, img);
+            if (!fs.existsSync(src)) src = path.join(BASE_DIR, img);
+
+            if (fs.existsSync(src)) {
+                const ext = path.extname(img) || '.jpeg';
+                const dest = path.join(BASE_DIR, folderName, `${prefix}-${counter}${ext}`);
+                fs.copyFileSync(src, dest);
+                logs.push(`  ${prefix}-${counter} <- ${img}`);
+                counter++;
+            } else {
+                logs.push(`  MISSING: ${img}`);
+            }
+        });
+        return { count: counter - 1, logs };
+    }
+
+    ['APP', 'UI', 'BOTH', 'PROBLEMS'].forEach(clearFolder);
+
+    const appRes = copyRenamed(appImages, 'APP', 'APP');
+    const uiRes = copyRenamed(uiImages, 'UI', 'UI');
+    const bothRes = copyRenamed(bothImages, 'BOTH', 'BOTH');
+    const probRes = copyRenamed(problemImages, 'PROBLEMS', 'PROBLEM');
+
+    return `===== NATIVE AUTO-ORGANIZER OUTPUT =====\nCleared all folders.\n\n===== APP FOLDER =====\n${appRes.logs.join('\n')}\n\n===== UI FOLDER =====\n${uiRes.logs.join('\n')}\n\n===== BOTH FOLDER =====\n${bothRes.logs.join('\n')}\n\n===== PROBLEMS FOLDER =====\n${probRes.logs.join('\n')}\n\n========== SUMMARY ==========\nAPP folder: ${appRes.count} images\nUI folder: ${uiRes.count} images\nBOTH folder: ${bothRes.count} images\nPROBLEMS folder: ${probRes.count} images\n`;
+}
+
+// 4. Trigger Auto-Organizer PowerShell / Native Script
 app.post('/api/run-organizer', authenticateTeam, (req, res) => {
     const scriptPath = path.join(BASE_DIR, 'organize_feedback.ps1');
     if (!fs.existsSync(scriptPath)) {
@@ -209,13 +281,20 @@ app.post('/api/run-organizer', authenticateTeam, (req, res) => {
     const cmd = `powershell -NoProfile -ExecutionPolicy Bypass -File "${scriptPath}"`;
     exec(cmd, { cwd: BASE_DIR }, (error, stdout, stderr) => {
         if (error) {
-            console.error('Execution error:', error);
-            return res.status(500).json({
-                success: false,
-                error: error.message,
-                stderr: stderr,
-                stdout: stdout
-            });
+            console.log('PowerShell unavailable, falling back to Native Node.js Organizer...');
+            try {
+                const output = runNativeNodeOrganizer();
+                return res.json({
+                    success: true,
+                    message: 'Auto-Organizer native engine executed successfully!',
+                    output: output
+                });
+            } catch (fallbackErr) {
+                return res.status(500).json({
+                    success: false,
+                    error: fallbackErr.message
+                });
+            }
         }
         res.json({
             success: true,
