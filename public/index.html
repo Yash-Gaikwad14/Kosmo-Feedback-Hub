@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kosmo Feedback Hub & Auto-Organizer</title>
+    <meta name="description" content="Centralized feedback management and automated image organization hub for Kosmo team.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Header Navigation Bar -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Kosmo <span>Feedback Hub</span></h1>
+                    <span class="sub-tag">Automated Screenshot & Problem Organizer</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="system-badge online">
+                    <span class="pulse-dot"></span>
+                    <span>Backend Active</span>
+                </div>
+                <button id="runScriptBtn" class="btn btn-primary glow-btn">
+                    <i class="fa-solid fa-bolt"></i> Run Auto-Organizer
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-layout">
+
+        <!-- Stats Overview Cards -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card" data-cat="RAW">
+                    <div class="stat-icon raw-bg"><i class="fa-solid fa-folder-open"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Raw Images</span>
+                        <h3 id="statRaw">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-cat="APP">
+                    <div class="stat-icon app-bg"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">App Utility</span>
+                        <h3 id="statApp">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-cat="UI">
+                    <div class="stat-icon ui-bg"><i class="fa-solid fa-palette"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">UI & Design</span>
+                        <h3 id="statUi">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-cat="BOTH">
+                    <div class="stat-icon both-bg"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">App & UI</span>
+                        <h3 id="statBoth">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-cat="PROBLEMS">
+                    <div class="stat-icon problems-bg"><i class="fa-solid fa-bug"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Tracked Problems</span>
+                        <h3 id="statProblems">0</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Upload Portal & Script Console Row -->
+        <section class="content-row">
+            <!-- Upload Dropzone Card -->
+            <div class="glass-card upload-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-cloud-arrow-up"></i> Team Image Upload Portal</h2>
+                    <span class="badge badge-purple">Raw Store</span>
+                </div>
+                
+                <form id="uploadForm" class="upload-form">
+                    <div id="dropzone" class="dropzone">
+                        <input type="file" id="fileInput" multiple accept="image/*" class="file-input">
+                        <div class="dropzone-content">
+                            <i class="fa-solid fa-images drop-icon"></i>
+                            <p class="drop-title">Drag & drop raw feedback screenshots here</p>
+                            <span class="drop-sub">or click to browse from device (JPEG, PNG, WEBP)</span>
+                        </div>
+                    </div>
+
+                    <div id="filePreviewList" class="file-preview-list"></div>
+
+                    <div class="upload-controls">
+                        <div class="input-group">
+                            <i class="fa-solid fa-hashtag"></i>
+                            <select id="channelSelect" class="form-select">
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Reddit">Reddit DM</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Discord">Discord</option>
+                                <option value="Other">Other Channel</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" id="uploaderName" class="form-input" placeholder="Uploader Name (Optional)">
+                        </div>
+
+                        <button type="submit" id="submitUploadBtn" class="btn btn-secondary">
+                            <i class="fa-solid fa-upload"></i> Upload Raw Images
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Terminal Output Log Card -->
+            <div class="glass-card console-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-terminal"></i> Backend Script Output</h2>
+                    <span id="scriptStatusBadge" class="badge badge-gray">Idle</span>
+                </div>
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span class="term-dot red"></span>
+                        <span class="term-dot yellow"></span>
+                        <span class="term-dot green"></span>
+                        <span class="term-title">powershell -File organize_feedback.ps1</span>
+                    </div>
+                    <pre id="terminalOutput" class="terminal-body">System ready. Click 'Run Auto-Organizer' to execute backend categorization script...</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery & Filter Section -->
+        <section class="gallery-section">
+            <div class="gallery-header">
+                <div class="tabs-container">
+                    <button class="tab-btn active" data-category="ALL"><i class="fa-solid fa-border-all"></i> All Images</button>
+                    <button class="tab-btn" data-category="RAW"><i class="fa-solid fa-folder"></i> Raw Store</button>
+                    <button class="tab-btn" data-category="APP"><i class="fa-solid fa-cubes"></i> APP</button>
+                    <button class="tab-btn" data-category="UI"><i class="fa-solid fa-palette"></i> UI</button>
+                    <button class="tab-btn" data-category="BOTH"><i class="fa-solid fa-layer-group"></i> BOTH</button>
+                    <button class="tab-btn" data-category="PROBLEMS"><i class="fa-solid fa-bug"></i> PROBLEMS</button>
+                    <button class="tab-btn" data-category="PROBLEMS_LIST"><i class="fa-solid fa-list-check"></i> Bug Board</button>
+                </div>
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search feedback images or users...">
+                </div>
+            </div>
+
+            <!-- Image Grid Container -->
+            <div id="imageGrid" class="image-grid">
+                <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading feedback gallery...</div>
+            </div>
+
+            <!-- Problem Board Container (Hidden by default) -->
+            <div id="problemBoard" class="problem-board hidden">
+                <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading documented problems...</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox modal-hidden">
+        <div class="lightbox-overlay"></div>
+        <div class="lightbox-content">
+            <button id="closeLightbox" class="close-lightbox"><i class="fa-solid fa-xmark"></i></button>
+            <div class="lightbox-body">
+                <div class="lightbox-media">
+                    <img id="lightboxImg" src="" alt="Feedback Screenshot Full Preview">
+                </div>
+                <div class="lightbox-sidebar">
+                    <h3 id="lightboxTitle">Image Details</h3>
+                    <div class="meta-row"><span class="meta-label">Category:</span> <span id="lightboxCat" class="badge">--</span></div>
+                    <div class="meta-row"><span class="meta-label">Filename:</span> <code id="lightboxFilename">--</code></div>
+                    <div class="meta-row"><span class="meta-label">File Size:</span> <span id="lightboxSize">--</span></div>
+                    <div class="meta-row"><span class="meta-label">Modified:</span> <span id="lightboxDate">--</span></div>
+                    <div class="action-buttons">
+                        <a id="lightboxDownload" href="#" download class="btn btn-secondary"><i class="fa-solid fa-download"></i> Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
