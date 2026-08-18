@@ -384,6 +384,9 @@ function Copy-Renamed {
     $counter = 1
     foreach ($img in $images) {
         $src = Join-Path $base $img
+        if (-not (Test-Path $src)) {
+            $src = Join-Path "$base\RAW_IMAGES" $img
+        }
         if (Test-Path $src) {
             $ext = [System.IO.Path]::GetExtension($img)
             $dest = Join-Path "$base\$folder" "$prefix-$counter$ext"
