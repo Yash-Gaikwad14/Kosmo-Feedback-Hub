@@ -1,9 +1,10 @@
-// Kosmo Feedback Hub - Client Side Controller
+// Kosmo Feedback Hub - Client Side Controller with Team Passcode Auth
 document.addEventListener('DOMContentLoaded', () => {
     
     let currentCategory = 'ALL';
     let allImagesData = [];
     let currentUploadFiles = [];
+    let savedPasscode = sessionStorage.getItem('kosmo_team_passcode') || '';
 
     // DOM Elements
     const statRaw = document.getElementById('statRaw');
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statProblems = document.getElementById('statProblems');
 
     const runScriptBtn = document.getElementById('runScriptBtn');
+    const lockHubBtn = document.getElementById('lockHubBtn');
     const scriptStatusBadge = document.getElementById('scriptStatusBadge');
     const terminalOutput = document.getElementById('terminalOutput');
 
@@ -30,6 +32,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const statCards = document.querySelectorAll('.stat-card');
 
+    // Login Modal Elements
+    const loginModal = document.getElementById('loginModal');
+    const loginForm = document.getElementById('loginForm');
+    const passcodeInput = document.getElementById('passcodeInput');
+    const loginErrorAlert = document.getElementById('loginErrorAlert');
+    const loginErrorText = document.getElementById('loginErrorText');
+    const submitLoginBtn = document.getElementById('submitLoginBtn');
+
     // Lightbox Elements
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightboxImg');
@@ -42,11 +52,99 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeLightbox = document.getElementById('closeLightbox');
 
     // ---------------------------------------------------------
+    // AUTHENTICATED FETCH HELPER
+    // ---------------------------------------------------------
+    async function authFetch(url, options = {}) {
+        options.headers = options.headers || {};
+        if (options.body instanceof FormData) {
+            options.headers['x-team-passcode'] = savedPasscode;
+        } else {
+            options.headers = {
+                ...options.headers,
+                'x-team-passcode': savedPasscode
+            };
+        }
+
+        const res = await fetch(url, options);
+        if (res.status === 401) {
+            showLoginModal('Session expired or unauthorized. Please re-enter Team Passcode.');
+            throw new Error('Unauthorized');
+        }
+        return res;
+    }
+
+    function showLoginModal(msg = '') {
+        if (msg) {
+            loginErrorText.textContent = msg;
+            loginErrorAlert.classList.remove('hidden');
+        } else {
+            loginErrorAlert.classList.add('hidden');
+        }
+        loginModal.classList.remove('hidden');
+        passcodeInput.value = '';
+        passcodeInput.focus();
+    }
+
+    function hideLoginModal() {
+        loginModal.classList.add('hidden');
+    }
+
+    // ---------------------------------------------------------
+    // LOGIN FORM SUBMISSION
+    // ---------------------------------------------------------
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const enteredPasscode = passcodeInput.value.trim();
+        if (!enteredPasscode) return;
+
+        submitLoginBtn.disabled = true;
+        submitLoginBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...`;
+        loginErrorAlert.classList.add('hidden');
+
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ passcode: enteredPasscode })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                savedPasscode = enteredPasscode;
+                sessionStorage.setItem('kosmo_team_passcode', savedPasscode);
+                hideLoginModal();
+                loadStats();
+                loadGallery(currentCategory);
+            } else {
+                loginErrorText.textContent = data.error || 'Incorrect Team Passcode.';
+                loginErrorAlert.classList.remove('hidden');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            loginErrorText.textContent = 'Failed to connect to authentication server.';
+            loginErrorAlert.classList.remove('hidden');
+        } finally {
+            submitLoginBtn.disabled = false;
+            submitLoginBtn.innerHTML = `<i class="fa-solid fa-lock-open"></i> Unlock Dashboard`;
+        }
+    });
+
+    lockHubBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('kosmo_team_passcode');
+        savedPasscode = '';
+        showLoginModal('Dashboard locked. Re-enter Team Passcode to access.');
+    });
+
+    // ---------------------------------------------------------
     // 1. STATS FETCHING
     // ---------------------------------------------------------
     async function loadStats() {
+        if (!savedPasscode) {
+            showLoginModal();
+            return;
+        }
         try {
-            const res = await fetch('/api/stats');
+            const res = await authFetch('/api/stats');
             const data = await res.json();
             if (data.success) {
                 statRaw.textContent = data.rawCount || 0;
@@ -64,6 +162,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. GALLERY FETCHING & RENDERING
     // ---------------------------------------------------------
     async function loadGallery(category = 'ALL') {
+        if (!savedPasscode) {
+            showLoginModal();
+            return;
+        }
         currentCategory = category;
 
         if (category === 'PROBLEMS_LIST') {
@@ -79,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         imageGrid.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading ${category} feedback gallery...</div>`;
 
         try {
-            const res = await fetch(`/api/images?category=${category}`);
+            const res = await authFetch(`/api/images?category=${category}`);
             const data = await res.json();
 
             if (data.success) {
@@ -90,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.error('Failed to fetch gallery:', err);
-            imageGrid.innerHTML = `<p class="error-msg">Failed to load images from server.</p>`;
         }
     }
 
@@ -112,11 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const sizeKb = (img.size / 1024).toFixed(1);
             const dateStr = new Date(img.mtime).toLocaleString();
             const badgeClass = getBadgeClass(img.category);
+            const authUrl = `${img.url}?passcode=${encodeURIComponent(savedPasscode)}`;
 
             return `
-                <div class="img-card" data-url="${img.url}" data-name="${img.name}" data-cat="${img.category}" data-size="${sizeKb} KB" data-date="${dateStr}">
+                <div class="img-card" data-url="${authUrl}" data-name="${img.name}" data-cat="${img.category}" data-size="${sizeKb} KB" data-date="${dateStr}">
                     <div class="img-wrapper">
-                        <img src="${img.url}" alt="${img.name}" loading="lazy">
+                        <img src="${authUrl}" alt="${img.name}" loading="lazy">
                         <div class="img-zoom-overlay">
                             <i class="fa-solid fa-expand"></i>
                         </div>
@@ -132,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
 
-        // Attach click handlers to open lightbox
         document.querySelectorAll('.img-card').forEach(card => {
             card.addEventListener('click', () => {
                 openLightboxModal({
@@ -162,20 +263,23 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadProblemBoard() {
         problemBoard.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading documented problems...</div>`;
         try {
-            const res = await fetch('/api/problems');
+            const res = await authFetch('/api/problems');
             const data = await res.json();
             if (data.success) {
                 if (data.problems.length === 0) {
                     problemBoard.innerHTML = `<p class="empty-msg">No documented problems found.</p>`;
                     return;
                 }
-                problemBoard.innerHTML = data.problems.map(prob => `
-                    <div class="problem-card">
-                        <div class="problem-id">${prob.id}</div>
-                        <div class="problem-desc">${prob.description}</div>
-                        <img src="${prob.imageUrl}" class="problem-thumb" alt="${prob.id}" onclick="openLightboxModal({url: '${prob.imageUrl}', name: '${prob.filename}', category: 'PROBLEMS', size: 'N/A', date: 'Documented'})">
-                    </div>
-                `).join('');
+                problemBoard.innerHTML = data.problems.map(prob => {
+                    const authImgUrl = `${prob.imageUrl}?passcode=${encodeURIComponent(savedPasscode)}`;
+                    return `
+                        <div class="problem-card">
+                            <div class="problem-id">${prob.id}</div>
+                            <div class="problem-desc">${prob.description}</div>
+                            <img src="${authImgUrl}" class="problem-thumb" alt="${prob.id}" onclick="openLightboxModal({url: '${authImgUrl}', name: '${prob.filename}', category: 'PROBLEMS', size: 'N/A', date: 'Documented'})">
+                        </div>
+                    `;
+                }).join('');
             }
         } catch (err) {
             console.error('Failed to load problems:', err);
@@ -240,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('uploader', uploaderName.value || 'Anonymous');
 
         try {
-            const res = await fetch('/api/upload', {
+            const res = await authFetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
@@ -258,7 +362,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.error('Upload failed:', err);
-            appendTerminalLog(`\n[UPLOAD FAILED] Network or server error.`);
         } finally {
             submitUploadBtn.disabled = false;
             submitUploadBtn.innerHTML = `<i class="fa-solid fa-upload"></i> Upload Raw Images`;
@@ -277,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appendTerminalLog(`\n> powershell -ExecutionPolicy Bypass -File organize_feedback.ps1\nExecuting auto-organizer backend script...`);
 
         try {
-            const res = await fetch('/api/run-organizer', { method: 'POST' });
+            const res = await authFetch('/api/run-organizer', { method: 'POST' });
             const data = await res.json();
 
             if (data.success) {
@@ -293,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.error('Script execution error:', err);
-            appendTerminalLog(`\n[FATAL ERROR] Failed to contact backend server.`);
         } finally {
             runScriptBtn.disabled = false;
             runScriptBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Run Auto-Organizer`;
@@ -361,7 +463,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial Load
-    loadStats();
-    loadGallery('ALL');
+    // Initial Auth Check & Load
+    if (savedPasscode) {
+        hideLoginModal();
+        loadStats();
+        loadGallery('ALL');
+    } else {
+        showLoginModal();
+    }
 });

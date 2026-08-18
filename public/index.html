@@ -36,6 +36,9 @@
                 <button id="runScriptBtn" class="btn btn-primary glow-btn">
                     <i class="fa-solid fa-bolt"></i> Run Auto-Organizer
                 </button>
+                <button id="lockHubBtn" class="btn btn-secondary" title="Lock Hub Access">
+                    <i class="fa-solid fa-lock"></i> Lock Hub
+                </button>
             </div>
         </div>
     </header>
@@ -203,6 +206,35 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Team Passcode Login Modal -->
+    <div id="loginModal" class="login-modal-overlay">
+        <div class="login-modal-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2>Kosmo Team <span>Access</span></h2>
+                <p>Please enter your Team Passcode to unlock the Feedback Hub</p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+                <div id="loginErrorAlert" class="error-alert hidden">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="loginErrorText">Invalid Passcode</span>
+                </div>
+
+                <div class="input-group login-input-group">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="passcodeInput" class="form-input" placeholder="Enter Team Passcode" autocomplete="current-password" required>
+                </div>
+
+                <button type="submit" id="submitLoginBtn" class="btn btn-primary glow-btn full-width">
+                    <i class="fa-solid fa-lock-open"></i> Unlock Dashboard
+                </button>
+            </form>
         </div>
     </div>
 

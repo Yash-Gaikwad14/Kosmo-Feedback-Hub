@@ -18,17 +18,38 @@ const RAW_DIR = path.join(BASE_DIR, 'RAW_IMAGES');
     }
 });
 
+const TEAM_PASSCODE = process.env.TEAM_PASSCODE || 'kosmo2026';
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(BASE_DIR, 'public')));
 
-// Serve image folders static paths
-app.use('/images/RAW', express.static(RAW_DIR));
-app.use('/images/APP', express.static(path.join(BASE_DIR, 'APP')));
-app.use('/images/UI', express.static(path.join(BASE_DIR, 'UI')));
-app.use('/images/BOTH', express.static(path.join(BASE_DIR, 'BOTH')));
-app.use('/images/PROBLEMS', express.static(path.join(BASE_DIR, 'PROBLEMS')));
-app.use('/images/ROOT', express.static(BASE_DIR));
+// Authentication Middleware
+function authenticateTeam(req, res, next) {
+    const providedPasscode = req.headers['x-team-passcode'] || req.query.passcode;
+    if (!providedPasscode || providedPasscode !== TEAM_PASSCODE) {
+        return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or missing Team Passcode.' });
+    }
+    next();
+}
+
+// Public Login Endpoint
+app.post('/api/login', (req, res) => {
+    const { passcode } = req.body;
+    if (passcode === TEAM_PASSCODE) {
+        res.json({ success: true, message: 'Authenticated successfully.' });
+    } else {
+        res.status(401).json({ success: false, error: 'Incorrect Team Passcode. Please try again.' });
+    }
+});
+
+// Serve protected image static paths with auth check
+app.use('/images/RAW', authenticateTeam, express.static(RAW_DIR));
+app.use('/images/APP', authenticateTeam, express.static(path.join(BASE_DIR, 'APP')));
+app.use('/images/UI', authenticateTeam, express.static(path.join(BASE_DIR, 'UI')));
+app.use('/images/BOTH', authenticateTeam, express.static(path.join(BASE_DIR, 'BOTH')));
+app.use('/images/PROBLEMS', authenticateTeam, express.static(path.join(BASE_DIR, 'PROBLEMS')));
+app.use('/images/ROOT', authenticateTeam, express.static(BASE_DIR));
 
 // Storage Engine for Multer Uploads
 const storage = multer.diskStorage({
@@ -80,7 +101,7 @@ function getImagesInDir(dirPath) {
 // -------------------------------------------------------------
 
 // 1. Get Stats Overview
-app.get('/api/stats', (req, res) => {
+app.get('/api/stats', authenticateTeam, (req, res) => {
     try {
         const rawFiles = getImagesInDir(RAW_DIR);
         const appFiles = getImagesInDir(path.join(BASE_DIR, 'APP'));
@@ -113,7 +134,7 @@ app.get('/api/stats', (req, res) => {
 });
 
 // 2. Get Image List by Category
-app.get('/api/images', (req, res) => {
+app.get('/api/images', authenticateTeam, (req, res) => {
     try {
         const category = (req.query.category || 'ALL').toUpperCase();
         let results = [];
@@ -146,7 +167,7 @@ app.get('/api/images', (req, res) => {
 });
 
 // 3. Upload Raw Images Endpoint
-app.post('/api/upload', upload.array('photos', 20), (req, res) => {
+app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ success: false, error: 'No files uploaded.' });
@@ -179,7 +200,7 @@ app.post('/api/upload', upload.array('photos', 20), (req, res) => {
 });
 
 // 4. Trigger Auto-Organizer PowerShell Script
-app.post('/api/run-organizer', (req, res) => {
+app.post('/api/run-organizer', authenticateTeam, (req, res) => {
     const scriptPath = path.join(BASE_DIR, 'organize_feedback.ps1');
     if (!fs.existsSync(scriptPath)) {
         return res.status(404).json({ success: false, error: 'organize_feedback.ps1 script not found!' });
@@ -205,7 +226,7 @@ app.post('/api/run-organizer', (req, res) => {
 });
 
 // 5. Get Documented Problems Catalog
-app.get('/api/problems', (req, res) => {
+app.get('/api/problems', authenticateTeam, (req, res) => {
     try {
         const problemsScript = path.join(BASE_DIR, 'organize_problems.ps1');
         let problemList = [];
