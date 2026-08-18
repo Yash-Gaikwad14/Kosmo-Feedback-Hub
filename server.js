@@ -24,6 +24,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(BASE_DIR, 'public')));
 
+// Root Route Handler
+app.get('/', (req, res) => {
+    res.sendFile(path.join(BASE_DIR, 'public', 'index.html'));
+});
+
 // Authentication Middleware
 function authenticateTeam(req, res, next) {
     const providedPasscode = req.headers['x-team-passcode'] || req.query.passcode;
