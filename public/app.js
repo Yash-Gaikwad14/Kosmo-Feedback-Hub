@@ -1,3 +1,9 @@
+// Global error handler to catch rendering issues
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    console.error('JS Error caught:', msg, 'at', url, lineNo);
+    return false;
+};
+
 // Kosmo Feedback Hub - Client Side Controller with Team Passcode Auth
 document.addEventListener('DOMContentLoaded', () => {
     
