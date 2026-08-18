@@ -153,10 +153,46 @@ document.addEventListener('DOMContentLoaded', () => {
         uploaderName.value = sessionStorage.getItem('kosmo_active_user');
     }
 
-    activeUserSelect.addEventListener('change', (e) => {
+    activeUserSelect.addEventListener('change', async (e) => {
+        if (e.target.value === 'ADD_NEW') {
+            const newName = prompt('Enter new Team Member profile name (e.g. Rahul):');
+            if (newName && newName.trim()) {
+                const cleanName = newName.trim();
+                try {
+                    const res = await authFetch('/api/add-user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: cleanName })
+                    });
+                    const data = await res.json();
+                    if (data.success && data.users) {
+                        populateUserDropdowns(data.users, cleanName);
+                    }
+                } catch (err) {
+                    console.error('Failed to add user:', err);
+                }
+            } else {
+                activeUserSelect.value = sessionStorage.getItem('kosmo_active_user') || 'Yash';
+            }
+            return;
+        }
+
         sessionStorage.setItem('kosmo_active_user', e.target.value);
         uploaderName.value = e.target.value;
     });
+
+    function populateUserDropdowns(usersList, activeUser) {
+        if (!usersList || usersList.length === 0) return;
+        
+        // Active User Dropdown
+        activeUserSelect.innerHTML = usersList.map(u => `<option value="${u}">@${u}</option>`).join('') + `<option value="ADD_NEW">+ Add New Member...</option>`;
+        activeUserSelect.value = activeUser || usersList[0];
+        sessionStorage.setItem('kosmo_active_user', activeUserSelect.value);
+        uploaderName.value = activeUserSelect.value;
+
+        // Member Filter Dropdown
+        memberFilterSelect.innerHTML = `<option value="ALL">All Team Members</option>` + usersList.map(u => `<option value="${u}">Added by @${u}</option>`).join('');
+    }
 
     memberFilterSelect.addEventListener('change', () => {
         loadGallery(currentCategory);
@@ -236,6 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 statUi.textContent = data.uiCount || 0;
                 statBoth.textContent = data.bothCount || 0;
                 statProblems.textContent = data.problemCount || 0;
+
+                if (data.users && data.users.length > 0) {
+                    const currentActive = sessionStorage.getItem('kosmo_active_user') || data.users[0];
+                    populateUserDropdowns(data.users, currentActive);
+                }
             }
         } catch (err) {
             console.error('Failed to fetch stats:', err);

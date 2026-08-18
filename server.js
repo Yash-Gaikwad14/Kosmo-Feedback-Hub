@@ -303,7 +303,26 @@ app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res)
     }
 });
 
-// 4. Common Problem Finder API Endpoint
+// 4. Add New Team Member Profile Endpoint
+app.post('/api/add-user', authenticateTeam, (req, res) => {
+    try {
+        const { username } = req.body;
+        if (!username || !username.trim()) {
+            return res.status(400).json({ success: false, error: 'Username required.' });
+        }
+        const db = loadDb();
+        const cleanName = username.trim();
+        if (!db.users.includes(cleanName)) {
+            db.users.push(cleanName);
+            saveDb(db);
+        }
+        res.json({ success: true, users: db.users, added: cleanName });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 5. Common Problem Finder API Endpoint
 app.get('/api/common-problems', authenticateTeam, (req, res) => {
     try {
         const db = loadDb();
