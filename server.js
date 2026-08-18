@@ -6,7 +6,7 @@ const fs = require('fs');
 const { exec } = require('child_process');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = parseInt(process.env.PORT, 10) || 5000;
 const BASE_DIR = __dirname;
 const RAW_DIR = path.join(BASE_DIR, 'RAW_IMAGES');
 
@@ -24,7 +24,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(BASE_DIR, 'public')));
 
-// Root Route Handler
+// Root & Health Check Routes
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(BASE_DIR, 'public', 'index.html'));
 });
@@ -363,7 +365,14 @@ function getLocalIp() {
     return '127.0.0.1';
 }
 
-// Start Server listening on 0.0.0.0 for Team Network Access
+// Catch-all route handler for frontend single-page application
+app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api') && !req.path.startsWith('/images')) {
+        res.sendFile(path.join(BASE_DIR, 'public', 'index.html'));
+    } else {
+        res.status(404).json({ success: false, error: 'Endpoint not found.' });
+    }
+});
 app.listen(PORT, '0.0.0.0', () => {
     const localIp = getLocalIp();
     console.log(`====================================================`);
