@@ -28,6 +28,16 @@
             </div>
 
             <div class="header-actions">
+                <div class="user-profile-badge">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <select id="activeUserSelect" class="user-select">
+                        <option value="Yash">@Yash</option>
+                        <option value="Priyal">@Priyal</option>
+                        <option value="Dipak">@Dipak</option>
+                        <option value="Ankit">@Ankit</option>
+                        <option value="Kunal">@Kunal</option>
+                    </select>
+                </div>
                 <div class="system-badge online">
                     <span class="pulse-dot"></span>
                     <span>Backend Active</span>
@@ -153,6 +163,19 @@
             </div>
         </section>
 
+        <!-- Common Problem Finder Section -->
+        <section class="common-problems-section">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-chart-pie"></i> Common Problem Finder & Top Issue Frequency</h2>
+                    <span class="badge badge-purple">NLP Cluster Engine</span>
+                </div>
+                <div id="commonProblemsGrid" class="common-problems-grid">
+                    <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Analyzing feedback clusters...</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Gallery & Filter Section -->
         <section class="gallery-section">
             <div class="gallery-header">
@@ -166,9 +189,35 @@
                     <button class="tab-btn" data-category="PROBLEMS_LIST"><i class="fa-solid fa-list-check"></i> Bug Board</button>
                 </div>
 
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="Search feedback images or users...">
+                <div class="controls-group">
+                    <!-- Member Filter -->
+                    <div class="select-box">
+                        <i class="fa-solid fa-filter"></i>
+                        <select id="memberFilterSelect" class="form-select-sm">
+                            <option value="ALL">All Team Members</option>
+                            <option value="Yash">Added by @Yash</option>
+                            <option value="Priyal">Added by @Priyal</option>
+                            <option value="Dipak">Added by @Dipak</option>
+                            <option value="Ankit">Added by @Ankit</option>
+                            <option value="Kunal">Added by @Kunal</option>
+                        </select>
+                    </div>
+
+                    <!-- Smart Content Sorting -->
+                    <div class="select-box">
+                        <i class="fa-solid fa-arrow-down-wide-short"></i>
+                        <select id="sortSelect" class="form-select-sm">
+                            <option value="severity">Sort: Content Priority / Severity</option>
+                            <option value="topic">Sort: Content Topic Domain</option>
+                            <option value="date">Sort: Recency (Newest)</option>
+                            <option value="user">Sort: Team Member Profile</option>
+                        </select>
+                    </div>
+
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="searchInput" placeholder="Search feedback or topic...">
+                    </div>
                 </div>
             </div>
 

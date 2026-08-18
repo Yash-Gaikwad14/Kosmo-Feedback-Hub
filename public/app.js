@@ -141,6 +141,84 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoginModal('Dashboard locked. Re-enter Team Passcode to access.');
     });
 
+    // User & Controls Elements
+    const activeUserSelect = document.getElementById('activeUserSelect');
+    const memberFilterSelect = document.getElementById('memberFilterSelect');
+    const sortSelect = document.getElementById('sortSelect');
+    const commonProblemsGrid = document.getElementById('commonProblemsGrid');
+
+    // Restore active user from session or default
+    if (sessionStorage.getItem('kosmo_active_user')) {
+        activeUserSelect.value = sessionStorage.getItem('kosmo_active_user');
+        uploaderName.value = sessionStorage.getItem('kosmo_active_user');
+    }
+
+    activeUserSelect.addEventListener('change', (e) => {
+        sessionStorage.setItem('kosmo_active_user', e.target.value);
+        uploaderName.value = e.target.value;
+    });
+
+    memberFilterSelect.addEventListener('change', () => {
+        loadGallery(currentCategory);
+    });
+
+    sortSelect.addEventListener('change', () => {
+        loadGallery(currentCategory);
+    });
+
+    // ---------------------------------------------------------
+    // COMMON PROBLEM FINDER FETCHING
+    // ---------------------------------------------------------
+    async function loadCommonProblems() {
+        if (!savedPasscode || !commonProblemsGrid) return;
+        try {
+            const res = await authFetch('/api/common-problems');
+            const data = await res.json();
+            if (data.success && data.clusters) {
+                renderCommonProblems(data.clusters);
+            }
+        } catch (err) {
+            console.error('Failed to load common problems:', err);
+        }
+    }
+
+    function renderCommonProblems(clusters) {
+        if (!clusters || clusters.length === 0) {
+            commonProblemsGrid.innerHTML = `<p class="empty-msg">No common problem clusters detected yet.</p>`;
+            return;
+        }
+
+        const maxCount = Math.max(...clusters.map(c => c.count), 1);
+
+        commonProblemsGrid.innerHTML = clusters.map(c => {
+            const fillPct = Math.round((c.count / maxCount) * 100);
+            const badgeClass = getSeverityBadgeClass(c.severity);
+
+            return `
+                <div class="cluster-card">
+                    <div class="cluster-header">
+                        <span class="cluster-topic">${c.topic}</span>
+                        <span class="cluster-count ${badgeClass}">${c.count} Reports</span>
+                    </div>
+                    <p class="cluster-desc">${c.description}</p>
+                    <div class="freq-bar-bg">
+                        <div class="freq-bar-fill" style="width: ${fillPct}%;"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getSeverityBadgeClass(sev) {
+        switch (sev ? sev.toUpperCase() : '') {
+            case 'CRITICAL': return 'badge-critical';
+            case 'HIGH': return 'badge-high';
+            case 'MEDIUM': return 'badge-medium';
+            case 'LOW': return 'badge-low';
+            default: return 'badge-gray';
+        }
+    }
+
     // ---------------------------------------------------------
     // 1. STATS FETCHING
     // ---------------------------------------------------------
@@ -187,7 +265,9 @@ document.addEventListener('DOMContentLoaded', () => {
         imageGrid.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading ${category} feedback gallery...</div>`;
 
         try {
-            const res = await authFetch(`/api/images?category=${category}`);
+            const sortVal = sortSelect.value || 'severity';
+            const userVal = memberFilterSelect.value || 'ALL';
+            const res = await authFetch(`/api/images?category=${category}&sort=${sortVal}&user=${userVal}`);
             const data = await res.json();
 
             if (data.success) {
@@ -203,13 +283,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderGallery(images) {
         const query = searchInput.value.trim().toLowerCase();
-        const filtered = images.filter(img => img.name.toLowerCase().includes(query) || img.category.toLowerCase().includes(query));
+        const filtered = images.filter(img => 
+            img.name.toLowerCase().includes(query) || 
+            img.category.toLowerCase().includes(query) ||
+            (img.topic && img.topic.toLowerCase().includes(query)) ||
+            (img.uploadedBy && img.uploadedBy.toLowerCase().includes(query))
+        );
 
         if (filtered.length === 0) {
             imageGrid.innerHTML = `
                 <div class="empty-state" style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
                     <i class="fa-regular fa-image" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <p>No feedback images found in this category.</p>
+                    <p>No feedback images found in this category or member filter.</p>
                 </div>
             `;
             return;
@@ -219,10 +304,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const sizeKb = (img.size / 1024).toFixed(1);
             const dateStr = new Date(img.mtime).toLocaleString();
             const badgeClass = getBadgeClass(img.category);
+            const severityClass = getSeverityBadgeClass(img.severity);
             const authUrl = `${img.url}?passcode=${encodeURIComponent(savedPasscode)}`;
+            const userTag = img.uploadedBy || 'Yash';
 
             return `
-                <div class="img-card" data-url="${authUrl}" data-name="${img.name}" data-cat="${img.category}" data-size="${sizeKb} KB" data-date="${dateStr}">
+                <div class="img-card" data-url="${authUrl}" data-name="${img.name}" data-cat="${img.category}" data-user="${userTag}" data-sev="${img.severity}" data-topic="${img.topic}" data-size="${sizeKb} KB" data-date="${dateStr}">
                     <div class="img-wrapper">
                         <img src="${authUrl}" alt="${img.name}" loading="lazy">
                         <div class="img-zoom-overlay">
@@ -230,10 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="card-details">
-                        <div class="card-title">${img.name}</div>
+                        <div class="card-title" title="${img.name}">${img.name}</div>
                         <div class="card-meta">
                             <span class="badge ${badgeClass}">${img.category}</span>
-                            <span>${sizeKb} KB</span>
+                            <span class="user-pill"><i class="fa-solid fa-user"></i> @${userTag}</span>
+                            <span class="badge ${severityClass}">${img.severity}</span>
                         </div>
                     </div>
                 </div>
@@ -246,6 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     url: card.dataset.url,
                     name: card.dataset.name,
                     category: card.dataset.cat,
+                    uploadedBy: card.dataset.user,
+                    severity: card.dataset.sev,
+                    topic: card.dataset.topic,
                     size: card.dataset.size,
                     date: card.dataset.date
                 });
@@ -452,6 +543,12 @@ document.addEventListener('DOMContentLoaded', () => {
         lightboxDate.textContent = info.date;
         lightboxDownload.href = info.url;
 
+        // Populate User & Severity Meta if available
+        const userMeta = document.getElementById('lightboxUserMeta');
+        if (userMeta) {
+            userMeta.textContent = info.uploadedBy ? `@${info.uploadedBy}` : '@Yash';
+        }
+
         lightbox.classList.remove('modal-hidden');
     };
 
@@ -473,6 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedPasscode) {
         hideLoginModal();
         loadStats();
+        loadCommonProblems();
         loadGallery('ALL');
     } else {
         showLoginModal();

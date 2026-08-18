@@ -103,6 +103,48 @@ function getImagesInDir(dirPath) {
         .sort((a, b) => b.mtime - a.mtime);
 }
 
+// Database Helpers for Metadata Persistence & User Profiles
+const DB_PATH = path.join(BASE_DIR, 'config', 'db.json');
+
+function loadDb() {
+    try {
+        if (!fs.existsSync(path.dirname(DB_PATH))) {
+            fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
+        }
+        if (fs.existsSync(DB_PATH)) {
+            return JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
+        }
+    } catch (e) {
+        console.error("Error loading db.json:", e);
+    }
+    return { users: ["Yash", "Priyal", "Dipak", "Ankit", "Kunal"], problemClusters: [], imageMetadata: {} };
+}
+
+function saveDb(dbData) {
+    try {
+        fs.writeFileSync(DB_PATH, JSON.stringify(dbData, null, 2), 'utf-8');
+    } catch (e) {
+        console.error("Error saving db.json:", e);
+    }
+}
+
+function getMetadataForFile(filename) {
+    const db = loadDb();
+    if (db.imageMetadata && db.imageMetadata[filename]) {
+        return db.imageMetadata[filename];
+    }
+    // Default fallback metadata for historical files
+    return {
+        uploadedBy: "Yash",
+        channel: "WhatsApp",
+        userHandle: "Community Feedback",
+        severity: "MEDIUM",
+        topic: "General Feedback",
+        notes: "Historical feedback screenshot",
+        uploadedAt: new Date().toISOString()
+    };
+}
+
 // -------------------------------------------------------------
 // API ENDPOINTS
 // -------------------------------------------------------------
@@ -116,7 +158,6 @@ app.get('/api/stats', authenticateTeam, (req, res) => {
         const bothFiles = getImagesInDir(path.join(BASE_DIR, 'BOTH'));
         const problemFiles = getImagesInDir(path.join(BASE_DIR, 'PROBLEMS'));
 
-        // Check script tracking
         const scriptPath = path.join(BASE_DIR, 'organize_feedback.ps1');
         let scriptContent = '';
         if (fs.existsSync(scriptPath)) {
@@ -126,6 +167,8 @@ app.get('/api/stats', authenticateTeam, (req, res) => {
         const rootFiles = getImagesInDir(BASE_DIR);
         const untracked = rootFiles.filter(f => !scriptContent.includes(f.name));
 
+        const db = loadDb();
+
         res.json({
             success: true,
             rawCount: rawFiles.length,
@@ -133,17 +176,20 @@ app.get('/api/stats', authenticateTeam, (req, res) => {
             uiCount: uiFiles.length,
             bothCount: bothFiles.length,
             problemCount: problemFiles.length,
-            untrackedCount: untracked.length
+            untrackedCount: untracked.length,
+            users: db.users || ["Yash", "Priyal", "Dipak", "Ankit", "Kunal"]
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// 2. Get Image List by Category
+// 2. Get Image List by Category with Smart Content-Based Sorting & User Filtering
 app.get('/api/images', authenticateTeam, (req, res) => {
     try {
         const category = (req.query.category || 'ALL').toUpperCase();
+        const sortBy = req.query.sort || 'severity'; // severity | topic | user | date
+        const userFilter = req.query.user || 'ALL';
         let results = [];
 
         const categoriesToFetch = category === 'ALL' 
@@ -157,14 +203,44 @@ app.get('/api/images', authenticateTeam, (req, res) => {
 
             const files = getImagesInDir(targetDir);
             files.forEach(f => {
+                const meta = getMetadataForFile(f.name);
+                
+                // User Profile Filter check
+                if (userFilter !== 'ALL' && meta.uploadedBy.toLowerCase() !== userFilter.toLowerCase()) {
+                    return;
+                }
+
                 results.push({
                     name: f.name,
                     category: cat,
                     url: `/images/${cat}/${encodeURIComponent(f.name)}`,
                     size: f.size,
-                    mtime: f.mtime
+                    mtime: f.mtime,
+                    uploadedBy: meta.uploadedBy || 'Anonymous',
+                    channel: meta.channel || 'WhatsApp',
+                    severity: meta.severity || 'MEDIUM',
+                    topic: meta.topic || 'General Feedback',
+                    notes: meta.notes || '',
+                    userHandle: meta.userHandle || 'Community User'
                 });
             });
+        });
+
+        // Content-Based Smart Sorting Algorithm (Not just file name matching)
+        const severityRank = { 'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
+        
+        results.sort((a, b) => {
+            if (sortBy === 'severity') {
+                const rankA = severityRank[a.severity] || 0;
+                const rankB = severityRank[b.severity] || 0;
+                if (rankB !== rankA) return rankB - rankA;
+            } else if (sortBy === 'topic') {
+                return a.topic.localeCompare(b.topic);
+            } else if (sortBy === 'user') {
+                return a.uploadedBy.localeCompare(b.uploadedBy);
+            }
+            // Default / Date Recency sort
+            return new Date(b.mtime) - new Date(a.mtime);
         });
 
         res.json({ success: true, count: results.length, images: results });
@@ -173,14 +249,20 @@ app.get('/api/images', authenticateTeam, (req, res) => {
     }
 });
 
-// 3. Upload Raw Images Endpoint
+// 3. Upload Raw Images Endpoint with User Profile Attribution
 app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ success: false, error: 'No files uploaded.' });
         }
 
-        // Also copy uploaded files into root for powershell script compatibility
+        const uploadedBy = req.body.uploader || 'Yash';
+        const channel = req.body.channel || 'WhatsApp';
+        const notes = req.body.notes || '';
+        const severity = req.body.severity || 'MEDIUM';
+
+        const db = loadDb();
+
         const uploadedFiles = req.files.map(file => {
             const destRoot = path.join(BASE_DIR, file.filename);
             try {
@@ -188,18 +270,47 @@ app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res)
             } catch (e) {
                 console.error("Failed to copy to root:", e);
             }
+
+            // Save User Attribution & Metadata into Database
+            db.imageMetadata[file.filename] = {
+                uploadedBy,
+                channel,
+                userHandle: uploadedBy,
+                severity,
+                topic: severity === 'CRITICAL' ? 'Bug Report' : 'User Upload',
+                notes,
+                uploadedAt: new Date().toISOString()
+            };
+
             return {
                 originalname: file.originalname,
                 filename: file.filename,
                 size: file.size,
+                uploadedBy,
                 url: `/images/RAW/${encodeURIComponent(file.filename)}`
             };
         });
 
+        saveDb(db);
+
         res.json({
             success: true,
-            message: `Successfully uploaded ${uploadedFiles.length} raw image(s).`,
+            message: `Successfully uploaded ${uploadedFiles.length} raw image(s) by @${uploadedBy}.`,
             files: uploadedFiles
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 4. Common Problem Finder API Endpoint
+app.get('/api/common-problems', authenticateTeam, (req, res) => {
+    try {
+        const db = loadDb();
+        res.json({
+            success: true,
+            count: db.problemClusters.length,
+            clusters: db.problemClusters
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });

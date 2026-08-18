@@ -1,0 +1,112 @@
+{
+  "users": ["Yash", "Priyal", "Dipak", "Ankit", "Kunal"],
+  "problemClusters": [
+    {
+      "topic": "Response Speed & Slowness",
+      "count": 4,
+      "severity": "CRITICAL",
+      "description": "Chatbot response generation feels slow or takes too long to reply",
+      "sampleUsers": ["itzz_aryan_24", "Ok-Desk7336", "Additional_Winter872"]
+    },
+    {
+      "topic": "Dark Mode Contrast & Whites",
+      "count": 4,
+      "severity": "HIGH",
+      "description": "Black & white contrast too harsh, white background too bright, needs dark palette adjustments",
+      "sampleUsers": ["AttorneyOk1025", "unk9978", "PhilosopherLoud362"]
+    },
+    {
+      "topic": "Auto-Scroll Failure",
+      "count": 2,
+      "severity": "HIGH",
+      "description": "Chat does not auto-scroll down after generating response",
+      "sampleUsers": ["Clueless_Cabbage0", "Additional_Winter872"]
+    },
+    {
+      "topic": "Prompt Length & Structuring",
+      "count": 3,
+      "severity": "MEDIUM",
+      "description": "Generated prompts are too lengthy or hard to understand",
+      "sampleUsers": ["ekzess", "Kunal Paunikar", "Confident_Use_6122"]
+    },
+    {
+      "topic": "Token Quota & Free Tier",
+      "count": 2,
+      "severity": "MEDIUM",
+      "description": "Prompts consumed all free tier tokens, quota counter display confusion",
+      "sampleUsers": ["Dependent_Nose9421", "Ankit Jain"]
+    },
+    {
+      "topic": "Login & Link Verification",
+      "count": 2,
+      "severity": "HIGH",
+      "description": "Verification link invalid in different browsers; cannot see landing page after login",
+      "sampleUsers": ["Verification user", "Shivam__kumar"]
+    }
+  ],
+  "imageMetadata": {
+    "WhatsApp Image 2026-08-18 at 8.50.52 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "Reddit",
+      "userHandle": "Aggressive-Tax-1006",
+      "severity": "LOW",
+      "topic": "Product Utility Praise",
+      "notes": "Works nicely for people with no AI experience",
+      "uploadedAt": "2026-08-18T20:50:52.000Z"
+    },
+    "WhatsApp Image 2026-08-18 at 5.46.24 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "Reddit",
+      "userHandle": "Additional_Winter872",
+      "severity": "HIGH",
+      "topic": "Auto-Scroll & Speed",
+      "notes": "Tool a bit slow, page doesn't scroll down automatically",
+      "uploadedAt": "2026-08-18T17:46:24.000Z"
+    },
+    "WhatsApp Image 2026-08-17 at 10.18.53 PM.jpeg": {
+      "uploadedBy": "Priyal",
+      "channel": "Reddit",
+      "userHandle": "No-Nerve-7254",
+      "severity": "LOW",
+      "topic": "Prompt Structuring Praise",
+      "notes": "Gives specific prompts just as wanted or better",
+      "uploadedAt": "2026-08-17T22:18:53.000Z"
+    },
+    "WhatsApp Image 2026-08-17 at 8.57.53 PM.jpeg": {
+      "uploadedBy": "Dipak",
+      "channel": "Reddit",
+      "userHandle": "Ok-Desk7336",
+      "severity": "HIGH",
+      "topic": "Response Speed",
+      "notes": "Tool too good, reply response time slow",
+      "uploadedAt": "2026-08-17T20:57:53.000Z"
+    },
+    "WhatsApp Image 2026-08-17 at 11.26.35 AM.jpeg": {
+      "uploadedBy": "Ankit",
+      "channel": "Reddit",
+      "userHandle": "Shivam__kumar",
+      "severity": "HIGH",
+      "topic": "Login Redirect",
+      "notes": "Awesome landing page, but cannot view landing page after login",
+      "uploadedAt": "2026-08-17T11:26:35.000Z"
+    },
+    "WhatsApp Image 2026-08-17 at 10.45.47 AM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "Reddit",
+      "userHandle": "Weary_Atmosphere_839",
+      "severity": "MEDIUM",
+      "topic": "Context Retention",
+      "notes": "Loves vent mode, loses context on subsequent messages",
+      "uploadedAt": "2026-08-17T10:45:47.000Z"
+    },
+    "Screenshot_2026-08-13-23-25-03-477_com.instagram.android.jpg": {
+      "uploadedBy": "Ankit",
+      "channel": "Instagram",
+      "userHandle": "Ankit Jain",
+      "severity": "MEDIUM",
+      "topic": "Background Animation & Quota",
+      "notes": "Background animation annoying, 19/20 counter confusing",
+      "uploadedAt": "2026-08-13T23:25:03.000Z"
+    }
+  }
+}
