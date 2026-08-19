@@ -135,10 +135,20 @@ app.get('/api/images', authenticateTeam, async (req, res) => {
             ? ['RAW', 'APP', 'UI', 'BOTH', 'PROBLEMS']
             : (category === 'RECENT' ? ['RAW'] : [category]);
 
+        // Fetch all metadata in 1 single bulk query to eliminate N+1 latency
+        const metadataMap = await db.getAllMetadataMap();
+
         for (const cat of categoriesToFetch) {
             const files = await storage.listFiles(cat);
             for (const f of files) {
-                const meta = await db.getMetadataForFile(f.name);
+                const meta = metadataMap[f.name] || {
+                    uploadedBy: 'Yash',
+                    channel: 'WhatsApp',
+                    userHandle: 'Community Feedback',
+                    severity: 'MEDIUM',
+                    topic: 'General Feedback',
+                    notes: ''
+                };
                 
                 if (userFilter !== 'ALL' && meta.uploadedBy.toLowerCase() !== userFilter.toLowerCase()) {
                     continue;
