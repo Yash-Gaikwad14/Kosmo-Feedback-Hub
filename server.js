@@ -26,9 +26,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(BASE_DIR, 'public', 'index.html'));
 });
 
-// Authentication Middleware (Header Only)
+// Authentication Middleware (Header & Query fallback for <img> tags)
 function authenticateTeam(req, res, next) {
-    const providedPasscode = req.headers['x-team-passcode'];
+    const providedPasscode = req.headers['x-team-passcode'] || req.query.passcode;
     if (!TEAM_PASSCODE) {
         return res.status(500).json({ success: false, error: 'Server configuration error: TEAM_PASSCODE environment variable not set.' });
     }
@@ -59,6 +59,7 @@ app.get('/images/:category/:filename', authenticateTeam, async (req, res) => {
         
         const fileObj = await storage.getFileStreamOrBuffer(category, filename);
         res.setHeader('Content-Type', fileObj.contentType);
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         if (fileObj.contentLength) {
             res.setHeader('Content-Length', fileObj.contentLength);
         }
@@ -126,11 +127,13 @@ app.get('/api/images', authenticateTeam, async (req, res) => {
         const category = (req.query.category || 'ALL').toUpperCase();
         const sortBy = req.query.sort || 'severity';
         const userFilter = req.query.user || 'ALL';
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 0; // 0 means no pagination (all)
         let results = [];
 
         const categoriesToFetch = category === 'ALL' 
             ? ['RAW', 'APP', 'UI', 'BOTH', 'PROBLEMS']
-            : [category];
+            : (category === 'RECENT' ? ['RAW'] : [category]);
 
         for (const cat of categoriesToFetch) {
             const files = await storage.listFiles(cat);
@@ -160,7 +163,9 @@ app.get('/api/images', authenticateTeam, async (req, res) => {
         const severityRank = { 'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
         
         results.sort((a, b) => {
-            if (sortBy === 'severity') {
+            if (category === 'RECENT' || sortBy === 'date') {
+                return new Date(b.mtime) - new Date(a.mtime);
+            } else if (sortBy === 'severity') {
                 const rankA = severityRank[a.severity] || 0;
                 const rankB = severityRank[b.severity] || 0;
                 if (rankB !== rankA) return rankB - rankA;
@@ -172,7 +177,13 @@ app.get('/api/images', authenticateTeam, async (req, res) => {
             return new Date(b.mtime) - new Date(a.mtime);
         });
 
-        res.json({ success: true, count: results.length, images: results });
+        const totalCount = results.length;
+        if (limit > 0) {
+            const startIndex = (page - 1) * limit;
+            results = results.slice(startIndex, startIndex + limit);
+        }
+
+        res.json({ success: true, count: totalCount, page, limit, images: results });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -227,7 +238,7 @@ app.post('/api/upload', authenticateTeam, upload.array('photos', 20), async (req
     }
 });
 
-// 4. Add New Team Member Profile Endpoint
+// 4. Team Member Management Endpoints (Add, Edit, Delete)
 app.post('/api/add-user', authenticateTeam, async (req, res) => {
     try {
         const { username } = req.body;
@@ -241,7 +252,49 @@ app.post('/api/add-user', authenticateTeam, async (req, res) => {
     }
 });
 
-// 5. Common Problem Finder API Endpoint
+app.delete('/api/users/:username', authenticateTeam, async (req, res) => {
+    try {
+        const username = req.params.username;
+        const updatedUsers = await db.deleteUser(username);
+        res.json({ success: true, users: updatedUsers, deleted: username });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.put('/api/users/:username', authenticateTeam, async (req, res) => {
+    try {
+        const oldName = req.params.username;
+        const { newName } = req.body;
+        if (!newName || !newName.trim()) {
+            return res.status(400).json({ success: false, error: 'New team member name required.' });
+        }
+        const updatedUsers = await db.updateUser(oldName, newName.trim());
+        res.json({ success: true, users: updatedUsers, updated: newName.trim() });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 5. Delete Image & All Category Copies Endpoint
+app.delete('/api/images/:filename', authenticateTeam, async (req, res) => {
+    try {
+        const filename = path.basename(req.params.filename);
+
+        // Delete raw image and any organized copies across raw/, app/, ui/, both/, problems/
+        await storage.deleteAllCategoryCopies(filename);
+        await db.deleteMetadataForFile(filename);
+
+        res.json({
+            success: true,
+            message: `Successfully deleted screenshot ${filename} and all corresponding organized category copies.`
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 6. Common Problem Finder API Endpoint
 app.get('/api/common-problems', authenticateTeam, async (req, res) => {
     try {
         const clusters = await db.getProblemClusters();
@@ -327,7 +380,6 @@ app.post('/api/open-folder', authenticateTeam, (req, res) => {
     const { folder } = req.body || {};
     const folderName = folder || 'RAW_IMAGES';
 
-    // Gate OS Explorer call so it only runs in local non-production desktop mode
     if (process.env.NODE_ENV !== 'production' && process.platform === 'win32') {
         const targetPath = path.join(BASE_DIR, folderName);
         exec(`explorer "${targetPath}"`, (err) => {
@@ -337,12 +389,11 @@ app.post('/api/open-folder', authenticateTeam, (req, res) => {
             res.json({ success: true, isLocal: true, message: `Opened ${folderName} folder in Windows Explorer!` });
         });
     } else {
-        // In cloud production, navigate user to the relevant category view in Web Hub
         res.json({ success: true, isLocal: false, message: `Navigated to ${folderName} category view in Web Hub!` });
     }
 });
 
-// 5. Get Documented Problems Catalog
+// 7. Get Documented Problems Catalog
 app.get('/api/problems', authenticateTeam, async (req, res) => {
     try {
         const problemsScript = path.join(BASE_DIR, 'organize_problems.ps1');

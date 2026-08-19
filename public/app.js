@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCategory = 'ALL';
     let allImagesData = [];
     let currentUploadFiles = [];
+    let currentUsersList = [];
+    let currentPage = 1;
+    const PAGE_LIMIT = 24;
+    let pendingDeleteFilename = '';
     let savedPasscode = sessionStorage.getItem('kosmo_team_passcode') || '';
 
     // DOM Elements
@@ -43,6 +47,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const tabBtns = document.querySelectorAll('.tab-btn');
     const statCards = document.querySelectorAll('.stat-card');
+    const paginationContainer = document.getElementById('paginationContainer');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+    // Team Management Elements
+    const manageTeamBtn = document.getElementById('manageTeamBtn');
+    const teamModal = document.getElementById('teamModal');
+    const closeTeamModal = document.getElementById('closeTeamModal');
+    const teamMembersList = document.getElementById('teamMembersList');
+    const newMemberInput = document.getElementById('newMemberInput');
+    const submitNewMemberBtn = document.getElementById('submitNewMemberBtn');
+
+    // Delete Modal Elements
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteTargetFilename = document.getElementById('deleteTargetFilename');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const lightboxDeleteBtn = document.getElementById('lightboxDeleteBtn');
 
     // Login Modal Elements
     const loginModal = document.getElementById('loginModal');
@@ -130,6 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
         loginModal.classList.add('hidden');
     }
 
+    // Helper to format image URL with passcode query param for standard <img> tags
+    function getAuthenticatedImageUrl(rawUrl) {
+        if (!rawUrl) return '';
+        if (rawUrl.startsWith('http')) return rawUrl;
+        const joiner = rawUrl.includes('?') ? '&' : '?';
+        return `${rawUrl}${joiner}passcode=${encodeURIComponent(savedPasscode)}`;
+    }
+
     // ---------------------------------------------------------
     // LOGIN FORM SUBMISSION
     // ---------------------------------------------------------
@@ -189,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleUserDropdownChange(e) {
         const val = e.target.value;
         if (val === 'ADD_NEW') {
-            addNewMemberPrompt();
+            openTeamModal();
             return;
         }
         sessionStorage.setItem('kosmo_active_user', val);
@@ -199,37 +228,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     activeUserSelect.addEventListener('change', handleUserDropdownChange);
     uploaderSelect.addEventListener('change', handleUserDropdownChange);
+    manageTeamBtn?.addEventListener('click', openTeamModal);
 
-    async function addNewMemberPrompt() {
-        const newName = prompt('Enter new Team Member profile name (e.g. Rahul):');
-        if (newName && newName.trim()) {
-            const cleanName = newName.trim();
-            try {
-                const res = await authFetch('/api/add-user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: cleanName })
-                });
-                const data = await res.json();
-                if (data.success && data.users) {
-                    populateUserDropdowns(data.users, cleanName);
-                    showToast(`Added @${cleanName} to Team Members!`, 'success');
-                }
-            } catch (err) {
-                console.error('Failed to add user:', err);
-                showToast('Failed to add new team member profile.', 'error');
-            }
-        } else {
-            const fallback = sessionStorage.getItem('kosmo_active_user') || 'Yash';
-            activeUserSelect.value = fallback;
-            uploaderSelect.value = fallback;
-        }
+    function openTeamModal() {
+        renderTeamManagementList();
+        teamModal.classList.remove('modal-hidden');
     }
+
+    closeTeamModal?.addEventListener('click', () => teamModal.classList.add('modal-hidden'));
 
     function populateUserDropdowns(usersList, activeUser) {
         if (!usersList || usersList.length === 0) return;
+        currentUsersList = usersList;
         
-        const optionsHtml = usersList.map(u => `<option value="${u}">@${u}</option>`).join('') + `<option value="ADD_NEW">+ Add New Member...</option>`;
+        const optionsHtml = usersList.map(u => `<option value="${u}">@${u}</option>`).join('') + `<option value="ADD_NEW">+ Manage Team Members...</option>`;
         activeUserSelect.innerHTML = optionsHtml;
         uploaderSelect.innerHTML = optionsHtml;
 
@@ -242,11 +254,104 @@ document.addEventListener('DOMContentLoaded', () => {
         memberFilterSelect.innerHTML = `<option value="ALL">All Team Members</option>` + usersList.map(u => `<option value="${u}">Added by @${u}</option>`).join('');
     }
 
+    // Render Team Members Management Modal Content
+    function renderTeamManagementList() {
+        if (!currentUsersList || currentUsersList.length === 0) {
+            teamMembersList.innerHTML = `<p class="empty-msg">No team members defined.</p>`;
+            return;
+        }
+
+        teamMembersList.innerHTML = currentUsersList.map(u => `
+            <div class="team-member-row">
+                <span class="member-name-tag"><i class="fa-solid fa-user"></i> @${u}</span>
+                <div class="member-actions">
+                    <button class="btn-icon-action edit-user-btn" data-username="${u}" title="Edit Name"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn-icon-action delete-hover delete-user-btn" data-username="${u}" title="Delete User Profile"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            </div>
+        `).join('');
+
+        // Edit User Handlers
+        document.querySelectorAll('.edit-user-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const oldName = btn.dataset.username;
+                const newName = prompt(`Edit team member name for @${oldName}:`, oldName);
+                if (newName && newName.trim() && newName.trim() !== oldName) {
+                    try {
+                        const res = await authFetch(`/api/users/${encodeURIComponent(oldName)}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ newName: newName.trim() })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            populateUserDropdowns(data.users, newName.trim());
+                            renderTeamManagementList();
+                            showToast(`Updated profile to @${newName.trim()}!`, 'success');
+                            loadGallery(currentCategory);
+                        }
+                    } catch (err) {
+                        console.error('Failed to update user:', err);
+                        showToast('Failed to edit team member profile.', 'error');
+                    }
+                }
+            });
+        });
+
+        // Delete User Handlers
+        document.querySelectorAll('.delete-user-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const targetName = btn.dataset.username;
+                if (confirm(`Are you sure you want to remove team member profile @${targetName}? (Their past uploads will remain attributed to historical records).`)) {
+                    try {
+                        const res = await authFetch(`/api/users/${encodeURIComponent(targetName)}`, {
+                            method: 'DELETE'
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            populateUserDropdowns(data.users);
+                            renderTeamManagementList();
+                            showToast(`Removed team member profile @${targetName}.`, 'success');
+                        }
+                    } catch (err) {
+                        console.error('Failed to delete user:', err);
+                        showToast('Failed to delete team member profile.', 'error');
+                    }
+                }
+            });
+        });
+    }
+
+    submitNewMemberBtn?.addEventListener('click', async () => {
+        const cleanName = newMemberInput.value.trim();
+        if (!cleanName) return;
+
+        try {
+            const res = await authFetch('/api/add-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: cleanName })
+            });
+            const data = await res.json();
+            if (data.success && data.users) {
+                populateUserDropdowns(data.users, cleanName);
+                renderTeamManagementList();
+                newMemberInput.value = '';
+                showToast(`Added @${cleanName} to Team Members!`, 'success');
+            }
+        } catch (err) {
+            console.error('Failed to add user:', err);
+            showToast('Failed to add team member.', 'error');
+        }
+    });
+
     memberFilterSelect.addEventListener('change', () => {
+        currentPage = 1;
         loadGallery(currentCategory);
     });
 
     sortSelect.addEventListener('change', () => {
+        currentPage = 1;
         loadGallery(currentCategory);
     });
 
@@ -341,9 +446,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // 2. GALLERY FETCHING & RENDERING (With Retry Error UI)
+    // 2. GALLERY FETCHING & RENDERING (With Pagination & Delete)
     // ---------------------------------------------------------
-    async function loadGallery(category = 'ALL') {
+    async function loadGallery(category = 'ALL', append = false) {
         if (!savedPasscode) {
             showLoginModal();
             return;
@@ -353,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (category === 'PROBLEMS_LIST') {
             imageGrid.classList.add('hidden');
             problemBoard.classList.remove('hidden');
+            paginationContainer.classList.add('hidden');
             loadProblemBoard();
             return;
         } else {
@@ -360,20 +466,38 @@ document.addEventListener('DOMContentLoaded', () => {
             problemBoard.classList.add('hidden');
         }
 
-        imageGrid.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading ${category} feedback gallery...</div>`;
+        if (!append) {
+            currentPage = 1;
+            imageGrid.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading ${category} feedback gallery...</div>`;
+        }
 
         try {
             const sortVal = sortSelect.value || 'severity';
             const userVal = memberFilterSelect.value || 'ALL';
-            const res = await authFetch(`/api/images?category=${category}&sort=${sortVal}&user=${userVal}`);
+            
+            // Limit pagination for Recent Uploads view or large lists
+            const limit = category === 'RECENT' ? PAGE_LIMIT : 0;
+            const res = await authFetch(`/api/images?category=${category}&sort=${sortVal}&user=${userVal}&page=${currentPage}&limit=${limit}`);
             
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
             const data = await res.json();
 
             if (data.success) {
-                allImagesData = data.images;
+                if (append) {
+                    allImagesData = [...allImagesData, ...data.images];
+                } else {
+                    allImagesData = data.images;
+                }
+                
                 renderGallery(allImagesData);
+
+                // Show Pagination Load More Button if recent category has more items
+                if (category === 'RECENT' && data.count > allImagesData.length) {
+                    paginationContainer.classList.remove('hidden');
+                } else {
+                    paginationContainer.classList.add('hidden');
+                }
             } else {
                 renderGalleryError(data.error || 'Failed to fetch gallery images');
             }
@@ -382,6 +506,11 @@ document.addEventListener('DOMContentLoaded', () => {
             renderGalleryError(err.message || 'Network error fetching feedback gallery');
         }
     }
+
+    loadMoreBtn?.addEventListener('click', () => {
+        currentPage++;
+        loadGallery(currentCategory, true);
+    });
 
     function renderGalleryError(errMsg) {
         imageGrid.innerHTML = `
@@ -419,11 +548,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const badgeClass = getBadgeClass(img.category);
             const severityClass = getSeverityBadgeClass(img.severity);
             const userTag = img.uploadedBy || 'Yash';
+            const displayUrl = getAuthenticatedImageUrl(img.url);
 
             return `
-                <div class="img-card" data-url="${img.url}" data-name="${img.name}" data-cat="${img.category}" data-user="${userTag}" data-sev="${img.severity}" data-topic="${img.topic}" data-size="${sizeKb} KB" data-date="${dateStr}">
+                <div class="img-card" data-url="${displayUrl}" data-name="${img.name}" data-cat="${img.category}" data-user="${userTag}" data-sev="${img.severity}" data-topic="${img.topic}" data-size="${sizeKb} KB" data-date="${dateStr}">
+                    <button class="btn-card-delete delete-image-btn" data-filename="${img.name}" title="Delete Image & Category Copies"><i class="fa-solid fa-trash"></i></button>
                     <div class="img-wrapper">
-                        <img src="${img.url}" alt="${img.name}" loading="lazy">
+                        <img src="${displayUrl}" alt="${img.name}" loading="lazy">
                         <div class="img-zoom-overlay">
                             <i class="fa-solid fa-expand"></i>
                         </div>
@@ -440,8 +571,10 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
 
+        // Card Click Handler
         document.querySelectorAll('.img-card').forEach(card => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-image-btn')) return;
                 openLightboxModal({
                     url: card.dataset.url,
                     name: card.dataset.name,
@@ -452,6 +585,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     size: card.dataset.size,
                     date: card.dataset.date
                 });
+            });
+        });
+
+        // Delete Card Buttons Handlers
+        document.querySelectorAll('.delete-image-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const filename = btn.dataset.filename;
+                openDeleteConfirmationModal(filename);
             });
         });
     }
@@ -467,7 +609,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // 3. PROBLEM BOARD FETCHING
+    // 3. DELETE IMAGE CONFIRMATION MODAL
+    // ---------------------------------------------------------
+    function openDeleteConfirmationModal(filename) {
+        pendingDeleteFilename = filename;
+        deleteTargetFilename.textContent = filename;
+        deleteModal.classList.remove('modal-hidden');
+    }
+
+    cancelDeleteBtn?.addEventListener('click', () => {
+        deleteModal.classList.add('modal-hidden');
+        pendingDeleteFilename = '';
+    });
+
+    confirmDeleteBtn?.addEventListener('click', async () => {
+        if (!pendingDeleteFilename) return;
+
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Deleting...`;
+
+        try {
+            const res = await authFetch(`/api/images/${encodeURIComponent(pendingDeleteFilename)}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                showToast(`Deleted ${pendingDeleteFilename} and all category copies!`, 'success');
+                deleteModal.classList.add('modal-hidden');
+                lightbox.classList.add('modal-hidden');
+                pendingDeleteFilename = '';
+                loadStats();
+                loadGallery(currentCategory);
+            } else {
+                showToast(`Failed to delete: ${data.error}`, 'error');
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+            showToast('Failed to delete image.', 'error');
+        } finally {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> Yes, Delete Image`;
+        }
+    });
+
+    lightboxDeleteBtn?.addEventListener('click', () => {
+        const currentFilename = lightboxFilename.textContent;
+        if (currentFilename && currentFilename !== '--') {
+            openDeleteConfirmationModal(currentFilename);
+        }
+    });
+
+    // ---------------------------------------------------------
+    // 4. PROBLEM BOARD FETCHING
     // ---------------------------------------------------------
     async function loadProblemBoard() {
         problemBoard.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading documented problems...</div>`;
@@ -482,11 +676,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 problemBoard.innerHTML = data.problems.map(prob => {
+                    const probUrl = getAuthenticatedImageUrl(prob.imageUrl);
                     return `
                         <div class="problem-card">
                             <div class="problem-id">${prob.id}</div>
                             <div class="problem-desc">${prob.description}</div>
-                            <img src="${prob.imageUrl}" class="problem-thumb" alt="${prob.id}" onclick="openLightboxModal({url: '${prob.imageUrl}', name: '${prob.filename}', category: 'PROBLEMS', size: 'N/A', date: 'Documented'})">
+                            <img src="${probUrl}" class="problem-thumb" alt="${prob.id}" onclick="openLightboxModal({url: '${probUrl}', name: '${prob.filename}', category: 'PROBLEMS', size: 'N/A', date: 'Documented'})">
                         </div>
                     `;
                 }).join('');
@@ -505,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // 4. DROPZONE & UPLOAD HANDLERS (With Progress & Feedback)
+    // 5. DROPZONE & UPLOAD HANDLERS
     // ---------------------------------------------------------
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropzone.addEventListener(eventName, preventDefaults, false);
@@ -586,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <p style="font-size: 0.85rem; color: var(--text-secondary);">${data.message}</p>
                     <div class="uploaded-thumbs-grid">
-                        ${data.files.map(f => `<img src="${f.url}" class="uploaded-thumb" title="${f.filename}">`).join('')}
+                        ${data.files.map(f => `<img src="${getAuthenticatedImageUrl(f.url)}" class="uploaded-thumb" title="${f.filename}">`).join('')}
                     </div>
                 `;
                 uploadStatusBanner.classList.remove('hidden');
@@ -614,7 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------------------------------------------------------
-    // 5. OPEN FOLDERS & AUTO-ORGANIZER HANDLERS
+    // 6. OPEN FOLDERS & AUTO-ORGANIZER HANDLERS
     // ---------------------------------------------------------
     openFolderBtn.addEventListener('click', () => openFolderAction('RAW'));
 
@@ -685,12 +880,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // 6. TAB FILTERS & SEARCH
+    // 7. TAB FILTERS & SEARCH
     // ---------------------------------------------------------
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             tabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            currentPage = 1;
             loadGallery(btn.dataset.category);
         });
     });
@@ -707,17 +903,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------------------------------------------------------
-    // 7. LIGHTBOX MODAL
+    // 8. LIGHTBOX MODAL
     // ---------------------------------------------------------
     window.openLightboxModal = function(info) {
-        lightboxImg.src = info.url;
+        lightboxImg.src = getAuthenticatedImageUrl(info.url);
         lightboxTitle.textContent = info.name;
         lightboxCat.textContent = info.category;
         lightboxCat.className = `badge ${getBadgeClass(info.category)}`;
         lightboxFilename.textContent = info.name;
         lightboxSize.textContent = info.size;
         lightboxDate.textContent = info.date;
-        lightboxDownload.href = info.url;
+        lightboxDownload.href = getAuthenticatedImageUrl(info.url);
 
         if (lightboxUserMeta) {
             lightboxUserMeta.textContent = info.uploadedBy ? `@${info.uploadedBy}` : '@Yash';
@@ -737,6 +933,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             lightbox.classList.add('modal-hidden');
+            teamModal.classList.add('modal-hidden');
+            deleteModal.classList.add('modal-hidden');
         }
     });
 

@@ -41,6 +41,9 @@
                         <option value="Kunal">@Kunal</option>
                         <option value="ADD_NEW">+ Add New Member...</option>
                     </select>
+                    <button id="manageTeamBtn" class="btn-icon-subtle" title="Manage Team Members">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </button>
                 </div>
                 <div class="system-badge online">
                     <span class="pulse-dot"></span>
@@ -206,6 +209,7 @@
             <div class="gallery-header">
                 <div class="tabs-container">
                     <button class="tab-btn active" data-category="ALL"><i class="fa-solid fa-border-all"></i> All Images</button>
+                    <button class="tab-btn" data-category="RECENT"><i class="fa-solid fa-clock-rotate-left"></i> Recent Uploads</button>
                     <button class="tab-btn" data-category="RAW"><i class="fa-solid fa-folder"></i> Raw Store</button>
                     <button class="tab-btn" data-category="APP"><i class="fa-solid fa-cubes"></i> APP</button>
                     <button class="tab-btn" data-category="UI"><i class="fa-solid fa-palette"></i> UI</button>
@@ -251,6 +255,11 @@
                 <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading feedback gallery...</div>
             </div>
 
+            <!-- Load More Pagination Button -->
+            <div id="paginationContainer" class="pagination-container hidden">
+                <button id="loadMoreBtn" class="btn btn-secondary"><i class="fa-solid fa-arrow-down"></i> Load More Screenshots</button>
+            </div>
+
             <!-- Problem Board Container (Hidden by default) -->
             <div id="problemBoard" class="problem-board hidden">
                 <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading documented problems...</div>
@@ -258,6 +267,46 @@
         </section>
 
     </main>
+
+    <!-- Team Members Management Modal -->
+    <div id="teamModal" class="lightbox modal-hidden">
+        <div class="lightbox-overlay"></div>
+        <div class="lightbox-content team-modal-content">
+            <button id="closeTeamModal" class="close-lightbox"><i class="fa-solid fa-xmark"></i></button>
+            <div class="team-modal-header">
+                <h2><i class="fa-solid fa-users-gear"></i> Team Members <span>Management</span></h2>
+                <p>Add, edit name, or remove team member profiles</p>
+            </div>
+            
+            <div class="team-add-row">
+                <input type="text" id="newMemberInput" class="form-input" placeholder="New Team Member Name (e.g. Rahul)">
+                <button id="submitNewMemberBtn" class="btn btn-primary glow-btn"><i class="fa-solid fa-user-plus"></i> Add</button>
+            </div>
+
+            <div id="teamMembersList" class="team-members-list">
+                <!-- Dynamically Populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Delete Confirmation Modal -->
+    <div id="deleteModal" class="lightbox modal-hidden">
+        <div class="lightbox-overlay"></div>
+        <div class="lightbox-content delete-modal-content">
+            <div class="delete-header">
+                <div class="delete-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h2>Delete <span>Screenshot</span></h2>
+                <p>Are you sure you want to delete <strong id="deleteTargetFilename">this file</strong>?</p>
+                <span class="warning-sub">This will delete the raw image and all organized copies (APP, UI, BOTH, PROBLEMS) from Supabase Storage and Database. This action cannot be undone.</span>
+            </div>
+            <div class="delete-actions">
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn btn-danger glow-btn-red"><i class="fa-solid fa-trash-can"></i> Yes, Delete Image</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Lightbox Modal -->
     <div id="lightbox" class="lightbox modal-hidden">
@@ -277,6 +326,7 @@
                     <div class="meta-row"><span class="meta-label">Modified:</span> <span id="lightboxDate">--</span></div>
                     <div class="action-buttons">
                         <a id="lightboxDownload" href="#" download class="btn btn-secondary"><i class="fa-solid fa-download"></i> Download</a>
+                        <button id="lightboxDeleteBtn" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
                     </div>
                 </div>
             </div>
