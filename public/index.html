@@ -34,11 +34,12 @@
                 <div class="user-profile-badge">
                     <i class="fa-solid fa-circle-user"></i>
                     <select id="activeUserSelect" class="user-select">
+                        <option value="Aditya">@Aditya</option>
+                        <option value="Anmol">@Anmol</option>
+                        <option value="Harshal">@Harshal</option>
+                        <option value="Prashik">@Prashik</option>
+                        <option value="Shoaib">@Shoaib</option>
                         <option value="Yash">@Yash</option>
-                        <option value="Priyal">@Priyal</option>
-                        <option value="Dipak">@Dipak</option>
-                        <option value="Ankit">@Ankit</option>
-                        <option value="Kunal">@Kunal</option>
                         <option value="ADD_NEW">+ Add New Member...</option>
                     </select>
                     <button id="manageTeamBtn" class="btn-icon-subtle" title="Manage Team Members">
@@ -157,11 +158,12 @@
                         <div class="input-group">
                             <i class="fa-solid fa-user"></i>
                             <select id="uploaderSelect" class="form-select">
+                                <option value="Aditya">@Aditya</option>
+                                <option value="Anmol">@Anmol</option>
+                                <option value="Harshal">@Harshal</option>
+                                <option value="Prashik">@Prashik</option>
+                                <option value="Shoaib">@Shoaib</option>
                                 <option value="Yash">@Yash</option>
-                                <option value="Priyal">@Priyal</option>
-                                <option value="Dipak">@Dipak</option>
-                                <option value="Ankit">@Ankit</option>
-                                <option value="Kunal">@Kunal</option>
                                 <option value="ADD_NEW">+ Add New Member...</option>
                             </select>
                         </div>
@@ -224,11 +226,12 @@
                         <i class="fa-solid fa-filter"></i>
                         <select id="memberFilterSelect" class="form-select-sm">
                             <option value="ALL">All Team Members</option>
+                            <option value="Aditya">Added by @Aditya</option>
+                            <option value="Anmol">Added by @Anmol</option>
+                            <option value="Harshal">Added by @Harshal</option>
+                            <option value="Prashik">Added by @Prashik</option>
+                            <option value="Shoaib">Added by @Shoaib</option>
                             <option value="Yash">Added by @Yash</option>
-                            <option value="Priyal">Added by @Priyal</option>
-                            <option value="Dipak">Added by @Dipak</option>
-                            <option value="Ankit">Added by @Ankit</option>
-                            <option value="Kunal">Added by @Kunal</option>
                         </select>
                     </div>
 
@@ -304,6 +307,26 @@
             <div class="delete-actions">
                 <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
                 <button id="confirmDeleteBtn" class="btn btn-danger glow-btn-red"><i class="fa-solid fa-trash-can"></i> Yes, Delete Image</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Duplicate Image Warning Modal -->
+    <div id="duplicateModal" class="lightbox modal-hidden">
+        <div class="lightbox-overlay"></div>
+        <div class="lightbox-content delete-modal-content">
+            <div class="delete-header">
+                <div class="delete-icon" style="background: rgba(234, 179, 8, 0.15); color: #eab308; border-color: rgba(234, 179, 8, 0.3);">
+                    <i class="fa-solid fa-copy"></i>
+                </div>
+                <h2>Duplicate Image <span>Detected</span></h2>
+                <p>The following screenshot(s) have already been uploaded:</p>
+                <div id="duplicateFileList" class="duplicate-file-list" style="max-height: 100px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; color: #facc15; margin: 0.5rem 0; padding: 0.5rem; background: rgba(0,0,0,0.3); border-radius: 8px;"></div>
+                <span class="warning-sub">Do you want to upload and overwrite the existing screenshot, or cancel the upload?</span>
+            </div>
+            <div class="delete-actions">
+                <button id="cancelDuplicateBtn" class="btn btn-secondary">Cancel Upload</button>
+                <button id="confirmDuplicateBtn" class="btn btn-primary glow-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Upload & Overwrite</button>
             </div>
         </div>
     </div>

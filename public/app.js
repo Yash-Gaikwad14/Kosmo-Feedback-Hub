@@ -65,6 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const lightboxDeleteBtn = document.getElementById('lightboxDeleteBtn');
 
+    // Duplicate Modal Elements
+    const duplicateModal = document.getElementById('duplicateModal');
+    const duplicateFileList = document.getElementById('duplicateFileList');
+    const cancelDuplicateBtn = document.getElementById('cancelDuplicateBtn');
+    const confirmDuplicateBtn = document.getElementById('confirmDuplicateBtn');
+    let pendingDuplicateFormData = null;
+
     // Login Modal Elements
     const loginModal = document.getElementById('loginModal');
     const loginForm = document.getElementById('loginForm');
@@ -218,6 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleUserDropdownChange(e) {
         const val = e.target.value;
         if (val === 'ADD_NEW') {
+            const savedUser = sessionStorage.getItem('kosmo_active_user') || currentUsersList[0] || 'Aditya';
+            activeUserSelect.value = savedUser;
+            uploaderSelect.value = savedUser;
             openTeamModal();
             return;
         }
@@ -233,6 +243,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function openTeamModal() {
         renderTeamManagementList();
         teamModal.classList.remove('modal-hidden');
+        if (newMemberInput) {
+            newMemberInput.value = '';
+            setTimeout(() => newMemberInput.focus(), 100);
+        }
     }
 
     closeTeamModal?.addEventListener('click', () => teamModal.classList.add('modal-hidden'));
@@ -322,9 +336,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    submitNewMemberBtn?.addEventListener('click', async () => {
+    async function handleAddNewMember() {
         const cleanName = newMemberInput.value.trim();
-        if (!cleanName) return;
+        if (!cleanName) {
+            showToast('Please enter a team member name.', 'error');
+            return;
+        }
 
         try {
             const res = await authFetch('/api/add-user', {
@@ -338,10 +355,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderTeamManagementList();
                 newMemberInput.value = '';
                 showToast(`Added @${cleanName} to Team Members!`, 'success');
+            } else {
+                showToast(data.error || 'Failed to add team member.', 'error');
             }
         } catch (err) {
             console.error('Failed to add user:', err);
             showToast('Failed to add team member.', 'error');
+        }
+    }
+
+    submitNewMemberBtn?.addEventListener('click', handleAddNewMember);
+    newMemberInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddNewMember();
         }
     });
 
@@ -791,6 +818,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 fileInput.value = '';
                 loadStats();
                 loadGallery(currentCategory);
+            } else if (data.isDuplicate) {
+                pendingDuplicateFormData = formData;
+                if (duplicateFileList) {
+                    duplicateFileList.innerHTML = (data.duplicates || []).map(d => `<div>• ${d}</div>`).join('');
+                }
+                duplicateModal?.classList.remove('modal-hidden');
+                showToast('Duplicate screenshot detected!', 'info');
             } else {
                 showToast(`Upload failed: ${data.error}`, 'error');
                 appendTerminalLog(`\n[UPLOAD ERROR] ${data.error}`);
@@ -926,8 +960,69 @@ document.addEventListener('DOMContentLoaded', () => {
         lightbox.classList.add('modal-hidden');
     });
 
-    document.querySelector('.lightbox-overlay').addEventListener('click', () => {
-        lightbox.classList.add('modal-hidden');
+    document.querySelectorAll('.lightbox-overlay').forEach(overlay => {
+        overlay.addEventListener('click', () => {
+            const parentModal = overlay.closest('.lightbox');
+            if (parentModal) parentModal.classList.add('modal-hidden');
+        });
+    });
+
+    cancelDuplicateBtn?.addEventListener('click', () => {
+        duplicateModal?.classList.add('modal-hidden');
+        pendingDuplicateFormData = null;
+        showToast('Upload cancelled. Existing files preserved.', 'info');
+    });
+
+    confirmDuplicateBtn?.addEventListener('click', async () => {
+        if (!pendingDuplicateFormData) return;
+        duplicateModal?.classList.add('modal-hidden');
+        pendingDuplicateFormData.append('forceUpload', 'true');
+
+        submitUploadBtn.disabled = true;
+        submitUploadBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Overwriting...`;
+        uploadProgressContainer.classList.remove('hidden');
+        uploadProgressBar.style.width = '50%';
+
+        try {
+            const res = await authFetch('/api/upload', {
+                method: 'POST',
+                body: pendingDuplicateFormData
+            });
+            const data = await res.json();
+            uploadProgressBar.style.width = '100%';
+
+            if (data.success) {
+                showToast(`✅ Uploaded ${data.files.length} screenshot(s) by @${uploaderSelect.value}!`, 'success', 5000);
+                appendTerminalLog(`\n[UPLOAD SUCCESS] ${data.message}`);
+
+                uploadStatusBanner.innerHTML = `
+                    <div class="banner-header">
+                        <span><i class="fa-solid fa-circle-check"></i> Upload Completed Successfully</span>
+                        <span class="user-pill">@${uploaderSelect.value}</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">${data.message}</p>
+                    <div class="uploaded-thumbs-grid">
+                        ${data.files.map(f => `<img src="${getAuthenticatedImageUrl(f.url)}" class="uploaded-thumb" title="${f.filename}">`).join('')}
+                    </div>
+                `;
+                uploadStatusBanner.classList.remove('hidden');
+
+                currentUploadFiles = [];
+                filePreviewList.innerHTML = '';
+                fileInput.value = '';
+                loadStats();
+                loadGallery(currentCategory);
+            } else {
+                showToast(`Upload failed: ${data.error}`, 'error');
+            }
+        } catch (err) {
+            showToast(`Upload failed: ${err.message}`, 'error');
+        } finally {
+            pendingDuplicateFormData = null;
+            submitUploadBtn.disabled = false;
+            submitUploadBtn.innerHTML = `<i class="fa-solid fa-upload"></i> Upload Raw Images`;
+            setTimeout(() => uploadProgressContainer.classList.add('hidden'), 2000);
+        }
     });
 
     document.addEventListener('keydown', (e) => {
@@ -935,6 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lightbox.classList.add('modal-hidden');
             teamModal.classList.add('modal-hidden');
             deleteModal.classList.add('modal-hidden');
+            duplicateModal?.classList.add('modal-hidden');
         }
     });
 

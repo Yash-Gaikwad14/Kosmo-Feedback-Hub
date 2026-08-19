@@ -206,6 +206,27 @@ app.post('/api/upload', authenticateTeam, upload.array('photos', 20), async (req
             return res.status(400).json({ success: false, error: 'No files uploaded.' });
         }
 
+        const forceUpload = req.body.forceUpload === 'true';
+        const existingFiles = await storage.listFiles('RAW');
+        const existingNames = new Set(existingFiles.map(f => f.name));
+
+        const duplicates = [];
+        for (const file of req.files) {
+            const cleanName = file.originalname.replace(/[^a-zA-Z0-9_.-]/g, '_');
+            if (existingNames.has(cleanName)) {
+                duplicates.push(cleanName);
+            }
+        }
+
+        if (duplicates.length > 0 && !forceUpload) {
+            return res.json({
+                success: false,
+                isDuplicate: true,
+                duplicates: duplicates,
+                error: `Duplicate screenshot(s) detected: ${duplicates.join(', ')}`
+            });
+        }
+
         const uploadedBy = req.body.uploader || 'Yash';
         const channel = req.body.channel || 'WhatsApp';
         const notes = req.body.notes || '';

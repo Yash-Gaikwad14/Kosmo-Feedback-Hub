@@ -15,7 +15,7 @@
 | **UI** | `31` | Dark Mode Aesthetics, Font Scaling, UI Layout |
 | **BOTH** | `29` | Combined UX & Utility Feedback Items |
 | **PROBLEMS** | `25` | Documented Bugs & Issues Catalog |
-| **Team Users** | `5+` | Team Profiles (`Yash`, `Priyal`, `Dipak`, `Ankit`, `Kunal`) |
+| **Team Users** | `6` | Team Profiles (`Aditya`, `Anmol`, `Harshal`, `Prashik`, `Shoaib`, `Yash`) |
 | **Untracked Queue** | `0` | All raw screenshots 100% verified & organized |
 
 ---
@@ -31,7 +31,7 @@
 ## 🛠️ Implemented System Modules
 
 1. **Team Authentication Shield**: Restricts API endpoints and web app access to authorized team members (`x-team-passcode` header validation).
-2. **Team Member User Profiles ("Who Added What")**: Attributes every upload to team members (`@Yash`, `@Priyal`, `@Dipak`, `@Ankit`, `@Kunal`) with real-time UI switching and `POST /api/add-user` dynamic user profile creation.
+2. **Team Member User Profiles ("Who Added What")**: Attributes every upload to team members (`@Aditya`, `@Anmol`, `@Harshal`, `@Prashik`, `@Shoaib`, `@Yash`) with real-time UI switching and `POST /api/add-user` dynamic user profile creation.
 3. **Persistent Metadata Database (`config/db.json`)**: File-backed DB storing upload attributions, channel tags (`WhatsApp`, `Reddit`, `Instagram`, `Discord`), severity, and notes.
 4. **Content-Based Smart Sorting Algorithm**: Ranks feedback items by `Severity` (`CRITICAL` -> `HIGH` -> `MEDIUM` -> `LOW`), `Topic Domain`, and `Recency`.
 5. **Common Problem Finder NLP Cluster Engine**: Aggregates top recurring user complaints (Response Speed, Dark Mode Contrast, Auto-Scroll, Token Quotas) with visual frequency progress bars.
