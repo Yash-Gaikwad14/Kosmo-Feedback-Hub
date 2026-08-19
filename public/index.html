@@ -14,6 +14,9 @@
 </head>
 <body>
 
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <!-- Header Navigation Bar -->
     <header class="app-header">
         <div class="header-container">
@@ -43,6 +46,9 @@
                     <span class="pulse-dot"></span>
                     <span>Backend Active</span>
                 </div>
+                <button id="openFolderBtn" class="btn btn-secondary">
+                    <i class="fa-solid fa-folder-open"></i> Open Folders
+                </button>
                 <button id="runScriptBtn" class="btn btn-primary glow-btn">
                     <i class="fa-solid fa-bolt"></i> Run Auto-Organizer
                 </button>
@@ -59,7 +65,7 @@
         <!-- Stats Overview Cards -->
         <section class="stats-section">
             <div class="stats-grid">
-                <div class="stat-card" data-cat="RAW">
+                <div class="stat-card" data-cat="RAW" title="Click to view Raw Store folder">
                     <div class="stat-icon raw-bg"><i class="fa-solid fa-folder-open"></i></div>
                     <div class="stat-info">
                         <span class="stat-label">Raw Images</span>
@@ -67,7 +73,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card" data-cat="APP">
+                <div class="stat-card" data-cat="APP" title="Click to view App Utility folder">
                     <div class="stat-icon app-bg"><i class="fa-solid fa-cubes"></i></div>
                     <div class="stat-info">
                         <span class="stat-label">App Utility</span>
@@ -75,7 +81,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card" data-cat="UI">
+                <div class="stat-card" data-cat="UI" title="Click to view UI & Design folder">
                     <div class="stat-icon ui-bg"><i class="fa-solid fa-palette"></i></div>
                     <div class="stat-info">
                         <span class="stat-label">UI & Design</span>
@@ -83,7 +89,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card" data-cat="BOTH">
+                <div class="stat-card" data-cat="BOTH" title="Click to view App & UI folder">
                     <div class="stat-icon both-bg"><i class="fa-solid fa-layer-group"></i></div>
                     <div class="stat-info">
                         <span class="stat-label">App & UI</span>
@@ -91,7 +97,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card" data-cat="PROBLEMS">
+                <div class="stat-card" data-cat="PROBLEMS" title="Click to view Tracked Problems folder">
                     <div class="stat-icon problems-bg"><i class="fa-solid fa-bug"></i></div>
                     <div class="stat-info">
                         <span class="stat-label">Tracked Problems</span>
@@ -120,7 +126,18 @@
                         </div>
                     </div>
 
+                    <!-- Progress Bar (Hidden by default) -->
+                    <div id="uploadProgressContainer" class="upload-progress-container hidden">
+                        <div class="progress-bar">
+                            <div id="uploadProgressBar" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <span id="uploadProgressText" class="progress-text">Uploading...</span>
+                    </div>
+
                     <div id="filePreviewList" class="file-preview-list"></div>
+
+                    <!-- Upload Status Banner -->
+                    <div id="uploadStatusBanner" class="upload-status-banner hidden"></div>
 
                     <div class="upload-controls">
                         <div class="input-group">
@@ -136,7 +153,14 @@
 
                         <div class="input-group">
                             <i class="fa-solid fa-user"></i>
-                            <input type="text" id="uploaderName" class="form-input" placeholder="Uploader Name (Optional)">
+                            <select id="uploaderSelect" class="form-select">
+                                <option value="Yash">@Yash</option>
+                                <option value="Priyal">@Priyal</option>
+                                <option value="Dipak">@Dipak</option>
+                                <option value="Ankit">@Ankit</option>
+                                <option value="Kunal">@Kunal</option>
+                                <option value="ADD_NEW">+ Add New Member...</option>
+                            </select>
                         </div>
 
                         <button type="submit" id="submitUploadBtn" class="btn btn-secondary">
@@ -178,7 +202,7 @@
         </section>
 
         <!-- Gallery & Filter Section -->
-        <section class="gallery-section">
+        <section id="gallerySection" class="gallery-section">
             <div class="gallery-header">
                 <div class="tabs-container">
                     <button class="tab-btn active" data-category="ALL"><i class="fa-solid fa-border-all"></i> All Images</button>
@@ -247,6 +271,7 @@
                 <div class="lightbox-sidebar">
                     <h3 id="lightboxTitle">Image Details</h3>
                     <div class="meta-row"><span class="meta-label">Category:</span> <span id="lightboxCat" class="badge">--</span></div>
+                    <div class="meta-row"><span class="meta-label">Uploaded By:</span> <span id="lightboxUserMeta" class="user-pill">--</span></div>
                     <div class="meta-row"><span class="meta-label">Filename:</span> <code id="lightboxFilename">--</code></div>
                     <div class="meta-row"><span class="meta-label">File Size:</span> <span id="lightboxSize">--</span></div>
                     <div class="meta-row"><span class="meta-label">Modified:</span> <span id="lightboxDate">--</span></div>

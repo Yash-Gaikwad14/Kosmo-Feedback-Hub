@@ -1,41 +1,35 @@
 # Architecture Decision Records (ADRs)
 ## Kosmo Feedback Hub & Auto-Organizer
 
-- **Document Version**: 2.0.0
+- **Document Version**: 2.2.0
 - **Status**: Active
 - **Last Updated**: 2026-08-19
 
 ---
 
-## ADR-001: Hybrid Node.js Express & PowerShell Architecture
+## ADR-001: Hybrid Node.js Express Architecture
 
 ### Status
 **ACCEPTED**
 
 ### Context
-The feedback organization logic was originally authored in PowerShell scripts (`organize_feedback.ps1`, `fix_sequence.ps1`). The team now requires a Web application for team image uploads and gallery viewing.
+The feedback organization logic was originally authored in PowerShell scripts (`organize_feedback.ps1`). The team requires a Web application for team image uploads and gallery viewing.
 
 ### Decision
-We choose a **Hybrid Architecture** where a lightweight Node.js Express server acts as the web backend and REST API layer, while delegating heavy file sorting/copying/renaming tasks to `organize_feedback.ps1` via Node `child_process.exec()`.
-
-### Consequences
-- **Pros**:
-  - Leverages existing PowerShell script logic without rewriting sequence rules.
-  - Express server handles file uploads (`multer`), web UI static serving, and REST endpoints efficiently.
-  - Simple setup.
+We choose a **Hybrid Architecture** where a lightweight Node.js Express server acts as the web backend and REST API layer, with a native Node.js auto-organizer engine for cloud execution and script compatibility.
 
 ---
 
-## ADR-002: Dedicated `RAW_IMAGES/` Storage Folder
+## ADR-002: Dedicated `RAW_IMAGES/` Storage Folder & Cloud Object Storage
 
 ### Status
 **ACCEPTED**
 
 ### Context
-Initially, raw feedback screenshots were placed loose in the project root directory. As project files grow, mixing raw images in the root folder creates clutter.
+Initially, raw feedback screenshots were placed loose in the project root directory.
 
 ### Decision
-Establish `c:\Users\Yashg\Downloads\Kosmo\RAW_IMAGES` as the designated raw image repository. All new uploads from the web app land in `RAW_IMAGES/`.
+Establish `RAW_IMAGES/` as the local raw image repository, with cloud object storage integration for persistent production deployment.
 
 ---
 
@@ -48,7 +42,7 @@ Establish `c:\Users\Yashg\Downloads\Kosmo\RAW_IMAGES` as the designated raw imag
 Certain user feedback contains both UI critiques and general App utility feedback or bugs.
 
 ### Decision
-Implement **Non-Destructive Copying (`Copy-Item -Force`)** where a single raw screenshot can be placed into multiple domain folders (`APP`, `UI`, `BOTH`, `PROBLEMS`) under separate 1-indexed filenames.
+Implement **Non-Destructive Copying** where a single raw screenshot can be placed into multiple domain category buckets (`APP`, `UI`, `BOTH`, `PROBLEMS`) under separate 1-indexed filenames.
 
 ---
 
@@ -68,10 +62,10 @@ Use vanilla HTML5, CSS3 with custom variables/glassmorphism, and ES6 JavaScript.
 **ACCEPTED**
 
 ### Context
-The user requested that the web application must be restricted strictly to team members (no open public access).
+The web application must be restricted strictly to team members (no open public access).
 
 ### Decision
-Implement **Team Passcode Authentication Middleware (`authenticateTeam`)** in `server.js` guarding all REST API routes (`/api/*`) and image static paths (`/images/*`). Requests without `x-team-passcode` header or query string parameter return HTTP `401 Unauthorized`. Frontend displays a glassmorphic login modal overlay prompting for the Team Passcode (`kosmo2026`).
+Implement **Team Passcode Authentication Middleware (`authenticateTeam`)** in `server.js` guarding all REST API routes (`/api/*`) and image static paths (`/images/*`). Passcode is configured via environment variable `TEAM_PASSCODE` with header-only validation (`x-team-passcode`).
 
 ---
 
@@ -81,14 +75,14 @@ Implement **Team Passcode Authentication Middleware (`authenticateTeam`)** in `s
 **ACCEPTED**
 
 ### Context
-When deploying to cloud container platforms like Render (Linux/Debian containers), PowerShell binaries (`powershell`) might not be pre-installed in standard Node.js base images.
+When deploying to cloud container platforms like Render (Linux containers), PowerShell binaries (`powershell`) might not be pre-installed in standard Node.js base images.
 
 ### Decision
-Add a **Native Node.js Fallback Organizer Engine (`runNativeNodeOrganizer`)** in `server.js`. If `exec('powershell ...')` fails or is unavailable on Linux, `server.js` seamlessly parses array targets in `organize_feedback.ps1`, clears destination folders, and executes zero-gap copy/renaming logic using native Node `fs` methods.
+Add a **Native Node.js Fallback Organizer Engine (`runNativeAutoOrganizer`)** in `server.js`.
 
 ---
 
-## ADR-007: Team Member User Profiles & Upload Attribution Ledger (`config/db.json`)
+## ADR-007: Team Member User Profiles & Upload Attribution Ledger
 
 ### Status
 **ACCEPTED**
@@ -97,7 +91,7 @@ Add a **Native Node.js Fallback Organizer Engine (`runNativeNodeOrganizer`)** in
 The user requested "who added what" tracking so the team can see which team member submitted which feedback screenshot.
 
 ### Decision
-Implement a persistent JSON file database at [`config/db.json`](file:///c:/Users/Yashg/Downloads/Kosmo/config/db.json) storing user profile definitions (`Yash`, `Priyal`, `Dipak`, `Ankit`, `Kunal`), metadata mappings (`uploadedBy`, `channel`, `userHandle`, `severity`, `topic`, `notes`, `uploadedAt`), and dynamic user addition via `POST /api/add-user`.
+Implement a persistent database abstraction (`lib/db.js`) supporting PostgreSQL (`DATABASE_URL`) with local `config/db.json` fallback, storing user profile definitions, metadata mappings (`uploadedBy`, `channel`, `userHandle`, `severity`, `topic`, `notes`, `uploadedAt`), and dynamic user addition via `POST /api/add-user`.
 
 ---
 
@@ -126,4 +120,33 @@ Implement a **Content-Based Smart Sorting Algorithm** in `GET /api/images`:
 Product managers need an aggregated view of top recurring user complaints across all feedback screenshots.
 
 ### Decision
-Implement **Common Problem Finder NLP Cluster Engine** in `GET /api/common-problems`. The server aggregates recurring problem reports into frequency clusters with user attribution samples and severity indicators, rendered visually as progress bar widgets on the web UI dashboard.
+Implement **Common Problem Finder NLP Cluster Engine** in `GET /api/common-problems`. The server aggregates recurring problem reports into frequency clusters rendered visually as progress bar widgets on the web UI dashboard.
+
+---
+
+## ADR-010: Hosted PostgreSQL Database Migration for Render Free Tier
+
+### Status
+**ACCEPTED**
+
+### Context
+Render's free tier has no persistent disk support, and free tier services spin down after ~15 minutes of inactivity, wiping local disk files.
+
+### Decision
+Integrate `pg` for PostgreSQL database persistence storing team member profiles, upload attributions, and problem clusters.
+
+---
+
+## ADR-011: Supabase Storage Backend Switch (Replacing Cloudflare R2)
+
+### Status
+**ACCEPTED**
+
+### Context
+Cloudflare R2 requires a credit card on file even for its free tier tier. Supabase provides both a free-tier PostgreSQL database and 1GB free Supabase Storage without requiring credit card registration on file.
+
+### Decision
+Switch object storage integration from `@aws-sdk/client-s3` (Cloudflare R2) to `@supabase/supabase-js` (Supabase Storage API):
+- All raw uploads and categorized screenshots stream to a public Supabase Storage Bucket (`kosmo-feedback`).
+- Single unified provider (Supabase) handles both PostgreSQL database (`DATABASE_URL`) and file storage (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`).
+- Preserves local disk fallback when environment variables are not set.

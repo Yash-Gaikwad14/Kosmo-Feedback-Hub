@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -5,20 +6,14 @@ const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
 
+const storage = require('./lib/storage');
+const db = require('./lib/db');
+
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 5000;
 const BASE_DIR = __dirname;
-const RAW_DIR = path.join(BASE_DIR, 'RAW_IMAGES');
 
-// Ensure required directories exist
-['RAW_IMAGES', 'APP', 'UI', 'BOTH', 'PROBLEMS', 'public'].forEach(dir => {
-    const dirPath = path.join(BASE_DIR, dir);
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-    }
-});
-
-const TEAM_PASSCODE = process.env.TEAM_PASSCODE || 'kosmo2026';
+const TEAM_PASSCODE = process.env.TEAM_PASSCODE;
 
 app.use(cors());
 app.use(express.json());
@@ -31,9 +26,12 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(BASE_DIR, 'public', 'index.html'));
 });
 
-// Authentication Middleware
+// Authentication Middleware (Header Only)
 function authenticateTeam(req, res, next) {
-    const providedPasscode = req.headers['x-team-passcode'] || req.query.passcode;
+    const providedPasscode = req.headers['x-team-passcode'];
+    if (!TEAM_PASSCODE) {
+        return res.status(500).json({ success: false, error: 'Server configuration error: TEAM_PASSCODE environment variable not set.' });
+    }
     if (!providedPasscode || providedPasscode !== TEAM_PASSCODE) {
         return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or missing Team Passcode.' });
     }
@@ -43,6 +41,9 @@ function authenticateTeam(req, res, next) {
 // Public Login Endpoint
 app.post('/api/login', (req, res) => {
     const { passcode } = req.body;
+    if (!TEAM_PASSCODE) {
+        return res.status(500).json({ success: false, error: 'Server configuration error: TEAM_PASSCODE environment variable not set.' });
+    }
     if (passcode === TEAM_PASSCODE) {
         res.json({ success: true, message: 'Authenticated successfully.' });
     } else {
@@ -50,30 +51,33 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-// Serve protected image static paths with auth check
-app.use('/images/RAW', authenticateTeam, express.static(RAW_DIR));
-app.use('/images/APP', authenticateTeam, express.static(path.join(BASE_DIR, 'APP')));
-app.use('/images/UI', authenticateTeam, express.static(path.join(BASE_DIR, 'UI')));
-app.use('/images/BOTH', authenticateTeam, express.static(path.join(BASE_DIR, 'BOTH')));
-app.use('/images/PROBLEMS', authenticateTeam, express.static(path.join(BASE_DIR, 'PROBLEMS')));
-app.use('/images/ROOT', authenticateTeam, express.static(BASE_DIR));
-
-// Storage Engine for Multer Uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        // Save to RAW_IMAGES and root for maximum script compatibility
-        cb(null, RAW_DIR);
-    },
-    filename: (req, file, cb) => {
-        const uniquePrefix = `WhatsApp Image ${new Date().toISOString().slice(0, 10)} at ${Date.now()}`;
-        const ext = path.extname(file.originalname) || '.jpeg';
-        const cleanName = file.originalname.replace(/[^a-zA-Z0-9_.-]/g, '_');
-        cb(null, `${cleanName}`);
+// Protected Static / Storage Proxy Route for Serving Category Images
+app.get('/images/:category/:filename', authenticateTeam, async (req, res) => {
+    try {
+        const category = req.params.category.toUpperCase();
+        const filename = path.basename(req.params.filename);
+        
+        const fileObj = await storage.getFileStreamOrBuffer(category, filename);
+        res.setHeader('Content-Type', fileObj.contentType);
+        if (fileObj.contentLength) {
+            res.setHeader('Content-Length', fileObj.contentLength);
+        }
+        if (Buffer.isBuffer(fileObj.stream)) {
+            res.send(fileObj.stream);
+        } else if (fileObj.stream.pipe) {
+            fileObj.stream.pipe(res);
+        } else {
+            res.send(fileObj.stream);
+        }
+    } catch (err) {
+        res.status(404).json({ success: false, error: 'Image not found.' });
     }
 });
 
+// Multer in-memory storage for Cloud / Storage abstraction
+const multerStorage = multer.memoryStorage();
 const upload = multer({
-    storage,
+    storage: multerStorage,
     limits: { fileSize: 25 * 1024 * 1024 }, // 25MB max
     fileFilter: (req, file, cb) => {
         const allowedTypes = /jpeg|jpg|png|webp/;
@@ -86,88 +90,20 @@ const upload = multer({
     }
 });
 
-// Helper: Get files in directory
-function getImagesInDir(dirPath) {
-    if (!fs.existsSync(dirPath)) return [];
-    return fs.readdirSync(dirPath)
-        .filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f))
-        .map(f => {
-            const full = path.join(dirPath, f);
-            const stat = fs.statSync(full);
-            return {
-                name: f,
-                size: stat.size,
-                mtime: stat.mtime
-            };
-        })
-        .sort((a, b) => b.mtime - a.mtime);
-}
-
-// Database Helpers for Metadata Persistence & User Profiles
-const DB_PATH = path.join(BASE_DIR, 'config', 'db.json');
-
-function loadDb() {
-    try {
-        if (!fs.existsSync(path.dirname(DB_PATH))) {
-            fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
-        }
-        if (fs.existsSync(DB_PATH)) {
-            return JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
-        }
-    } catch (e) {
-        console.error("Error loading db.json:", e);
-    }
-    return { users: ["Yash", "Priyal", "Dipak", "Ankit", "Kunal"], problemClusters: [], imageMetadata: {} };
-}
-
-function saveDb(dbData) {
-    try {
-        fs.writeFileSync(DB_PATH, JSON.stringify(dbData, null, 2), 'utf-8');
-    } catch (e) {
-        console.error("Error saving db.json:", e);
-    }
-}
-
-function getMetadataForFile(filename) {
-    const db = loadDb();
-    if (db.imageMetadata && db.imageMetadata[filename]) {
-        return db.imageMetadata[filename];
-    }
-    // Default fallback metadata for historical files
-    return {
-        uploadedBy: "Yash",
-        channel: "WhatsApp",
-        userHandle: "Community Feedback",
-        severity: "MEDIUM",
-        topic: "General Feedback",
-        notes: "Historical feedback screenshot",
-        uploadedAt: new Date().toISOString()
-    };
-}
-
 // -------------------------------------------------------------
 // API ENDPOINTS
 // -------------------------------------------------------------
 
 // 1. Get Stats Overview
-app.get('/api/stats', authenticateTeam, (req, res) => {
+app.get('/api/stats', authenticateTeam, async (req, res) => {
     try {
-        const rawFiles = getImagesInDir(RAW_DIR);
-        const appFiles = getImagesInDir(path.join(BASE_DIR, 'APP'));
-        const uiFiles = getImagesInDir(path.join(BASE_DIR, 'UI'));
-        const bothFiles = getImagesInDir(path.join(BASE_DIR, 'BOTH'));
-        const problemFiles = getImagesInDir(path.join(BASE_DIR, 'PROBLEMS'));
+        const rawFiles = await storage.listFiles('RAW');
+        const appFiles = await storage.listFiles('APP');
+        const uiFiles = await storage.listFiles('UI');
+        const bothFiles = await storage.listFiles('BOTH');
+        const problemFiles = await storage.listFiles('PROBLEMS');
 
-        const scriptPath = path.join(BASE_DIR, 'organize_feedback.ps1');
-        let scriptContent = '';
-        if (fs.existsSync(scriptPath)) {
-            scriptContent = fs.readFileSync(scriptPath, 'utf-8');
-        }
-
-        const rootFiles = getImagesInDir(BASE_DIR);
-        const untracked = rootFiles.filter(f => !scriptContent.includes(f.name));
-
-        const db = loadDb();
+        const usersList = await db.getUsers();
 
         res.json({
             success: true,
@@ -176,8 +112,8 @@ app.get('/api/stats', authenticateTeam, (req, res) => {
             uiCount: uiFiles.length,
             bothCount: bothFiles.length,
             problemCount: problemFiles.length,
-            untrackedCount: untracked.length,
-            users: db.users || ["Yash", "Priyal", "Dipak", "Ankit", "Kunal"]
+            untrackedCount: 0,
+            users: usersList
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -185,10 +121,10 @@ app.get('/api/stats', authenticateTeam, (req, res) => {
 });
 
 // 2. Get Image List by Category with Smart Content-Based Sorting & User Filtering
-app.get('/api/images', authenticateTeam, (req, res) => {
+app.get('/api/images', authenticateTeam, async (req, res) => {
     try {
         const category = (req.query.category || 'ALL').toUpperCase();
-        const sortBy = req.query.sort || 'severity'; // severity | topic | user | date
+        const sortBy = req.query.sort || 'severity';
         const userFilter = req.query.user || 'ALL';
         let results = [];
 
@@ -196,24 +132,19 @@ app.get('/api/images', authenticateTeam, (req, res) => {
             ? ['RAW', 'APP', 'UI', 'BOTH', 'PROBLEMS']
             : [category];
 
-        categoriesToFetch.forEach(cat => {
-            let targetDir = BASE_DIR;
-            if (cat === 'RAW') targetDir = RAW_DIR;
-            else if (['APP', 'UI', 'BOTH', 'PROBLEMS'].includes(cat)) targetDir = path.join(BASE_DIR, cat);
-
-            const files = getImagesInDir(targetDir);
-            files.forEach(f => {
-                const meta = getMetadataForFile(f.name);
+        for (const cat of categoriesToFetch) {
+            const files = await storage.listFiles(cat);
+            for (const f of files) {
+                const meta = await db.getMetadataForFile(f.name);
                 
-                // User Profile Filter check
                 if (userFilter !== 'ALL' && meta.uploadedBy.toLowerCase() !== userFilter.toLowerCase()) {
-                    return;
+                    continue;
                 }
 
                 results.push({
                     name: f.name,
                     category: cat,
-                    url: `/images/${cat}/${encodeURIComponent(f.name)}`,
+                    url: storage.getFileUrl(cat, f.name),
                     size: f.size,
                     mtime: f.mtime,
                     uploadedBy: meta.uploadedBy || 'Anonymous',
@@ -223,10 +154,9 @@ app.get('/api/images', authenticateTeam, (req, res) => {
                     notes: meta.notes || '',
                     userHandle: meta.userHandle || 'Community User'
                 });
-            });
-        });
+            }
+        }
 
-        // Content-Based Smart Sorting Algorithm (Not just file name matching)
         const severityRank = { 'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
         
         results.sort((a, b) => {
@@ -239,7 +169,6 @@ app.get('/api/images', authenticateTeam, (req, res) => {
             } else if (sortBy === 'user') {
                 return a.uploadedBy.localeCompare(b.uploadedBy);
             }
-            // Default / Date Recency sort
             return new Date(b.mtime) - new Date(a.mtime);
         });
 
@@ -250,7 +179,7 @@ app.get('/api/images', authenticateTeam, (req, res) => {
 });
 
 // 3. Upload Raw Images Endpoint with User Profile Attribution
-app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res) => {
+app.post('/api/upload', authenticateTeam, upload.array('photos', 20), async (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ success: false, error: 'No files uploaded.' });
@@ -261,18 +190,13 @@ app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res)
         const notes = req.body.notes || '';
         const severity = req.body.severity || 'MEDIUM';
 
-        const db = loadDb();
+        const uploadedFiles = [];
 
-        const uploadedFiles = req.files.map(file => {
-            const destRoot = path.join(BASE_DIR, file.filename);
-            try {
-                fs.copyFileSync(file.path, destRoot);
-            } catch (e) {
-                console.error("Failed to copy to root:", e);
-            }
+        for (const file of req.files) {
+            const cleanName = file.originalname.replace(/[^a-zA-Z0-9_.-]/g, '_');
+            const fileUrl = await storage.uploadFile('RAW', cleanName, file.buffer, file.mimetype);
 
-            // Save User Attribution & Metadata into Database
-            db.imageMetadata[file.filename] = {
+            const meta = {
                 uploadedBy,
                 channel,
                 userHandle: uploadedBy,
@@ -282,16 +206,16 @@ app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res)
                 uploadedAt: new Date().toISOString()
             };
 
-            return {
+            await db.saveMetadataForFile(cleanName, meta);
+
+            uploadedFiles.push({
                 originalname: file.originalname,
-                filename: file.filename,
+                filename: cleanName,
                 size: file.size,
                 uploadedBy,
-                url: `/images/RAW/${encodeURIComponent(file.filename)}`
-            };
-        });
-
-        saveDb(db);
+                url: fileUrl
+            });
+        }
 
         res.json({
             success: true,
@@ -304,32 +228,27 @@ app.post('/api/upload', authenticateTeam, upload.array('photos', 20), (req, res)
 });
 
 // 4. Add New Team Member Profile Endpoint
-app.post('/api/add-user', authenticateTeam, (req, res) => {
+app.post('/api/add-user', authenticateTeam, async (req, res) => {
     try {
         const { username } = req.body;
         if (!username || !username.trim()) {
             return res.status(400).json({ success: false, error: 'Username required.' });
         }
-        const db = loadDb();
-        const cleanName = username.trim();
-        if (!db.users.includes(cleanName)) {
-            db.users.push(cleanName);
-            saveDb(db);
-        }
-        res.json({ success: true, users: db.users, added: cleanName });
+        const updatedUsers = await db.addUser(username);
+        res.json({ success: true, users: updatedUsers, added: username.trim() });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
 // 5. Common Problem Finder API Endpoint
-app.get('/api/common-problems', authenticateTeam, (req, res) => {
+app.get('/api/common-problems', authenticateTeam, async (req, res) => {
     try {
-        const db = loadDb();
+        const clusters = await db.getProblemClusters();
         res.json({
             success: true,
-            count: db.problemClusters.length,
-            clusters: db.problemClusters
+            count: clusters.length,
+            clusters: clusters
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -354,8 +273,8 @@ function parsePs1Array(content, varName) {
     return items;
 }
 
-// Native Node.js Organizer (Runs on Linux / Render when PowerShell is absent)
-function runNativeNodeOrganizer() {
+// Native Auto-Organizer (Runs seamlessly on Cloud Supabase Storage & Local Node.js)
+async function runNativeAutoOrganizer() {
     const scriptPath = path.join(BASE_DIR, 'organize_feedback.ps1');
     const content = fs.readFileSync(scriptPath, 'utf-8');
 
@@ -364,85 +283,67 @@ function runNativeNodeOrganizer() {
     const bothImages = parsePs1Array(content, 'bothImages');
     const problemImages = parsePs1Array(content, 'problemImages');
 
-    // Helper: Clear folder
-    function clearFolder(folderName) {
-        const folderPath = path.join(BASE_DIR, folderName);
-        if (fs.existsSync(folderPath)) {
-            fs.readdirSync(folderPath).forEach(f => {
-                const fp = path.join(folderPath, f);
-                if (fs.statSync(fp).isFile()) fs.unlinkSync(fp);
-            });
-        } else {
-            fs.mkdirSync(folderPath, { recursive: true });
-        }
-    }
-
-    // Helper: Copy & rename
-    function copyRenamed(items, folderName, prefix) {
+    async function processCategory(items, categoryName, prefix) {
         let counter = 1;
         const logs = [];
-        items.forEach(img => {
-            let src = path.join(RAW_DIR, img);
-            if (!fs.existsSync(src)) src = path.join(BASE_DIR, img);
-
-            if (fs.existsSync(src)) {
+        for (const img of items) {
+            try {
                 const ext = path.extname(img) || '.jpeg';
-                const dest = path.join(BASE_DIR, folderName, `${prefix}-${counter}${ext}`);
-                fs.copyFileSync(src, dest);
+                const destFilename = `${prefix}-${counter}${ext}`;
+                await storage.copyFile('RAW', img, categoryName, destFilename);
                 logs.push(`  ${prefix}-${counter} <- ${img}`);
                 counter++;
-            } else {
+            } catch (err) {
                 logs.push(`  MISSING: ${img}`);
             }
-        });
+        }
         return { count: counter - 1, logs };
     }
 
-    ['APP', 'UI', 'BOTH', 'PROBLEMS'].forEach(clearFolder);
+    const appRes = await processCategory(appImages, 'APP', 'APP');
+    const uiRes = await processCategory(uiImages, 'UI', 'UI');
+    const bothRes = await processCategory(bothImages, 'BOTH', 'BOTH');
+    const probRes = await processCategory(problemImages, 'PROBLEMS', 'PROBLEM');
 
-    const appRes = copyRenamed(appImages, 'APP', 'APP');
-    const uiRes = copyRenamed(uiImages, 'UI', 'UI');
-    const bothRes = copyRenamed(bothImages, 'BOTH', 'BOTH');
-    const probRes = copyRenamed(problemImages, 'PROBLEMS', 'PROBLEM');
-
-    return `===== NATIVE AUTO-ORGANIZER OUTPUT =====\nCleared all folders.\n\n===== APP FOLDER =====\n${appRes.logs.join('\n')}\n\n===== UI FOLDER =====\n${uiRes.logs.join('\n')}\n\n===== BOTH FOLDER =====\n${bothRes.logs.join('\n')}\n\n===== PROBLEMS FOLDER =====\n${probRes.logs.join('\n')}\n\n========== SUMMARY ==========\nAPP folder: ${appRes.count} images\nUI folder: ${uiRes.count} images\nBOTH folder: ${bothRes.count} images\nPROBLEMS folder: ${probRes.count} images\n`;
+    return `===== NATIVE AUTO-ORGANIZER OUTPUT =====\nOrganized all category buckets.\n\n===== APP FOLDER =====\n${appRes.logs.join('\n')}\n\n===== UI FOLDER =====\n${uiRes.logs.join('\n')}\n\n===== BOTH FOLDER =====\n${bothRes.logs.join('\n')}\n\n===== PROBLEMS FOLDER =====\n${probRes.logs.join('\n')}\n\n========== SUMMARY ==========\nAPP folder: ${appRes.count} images\nUI folder: ${uiRes.count} images\nBOTH folder: ${bothRes.count} images\nPROBLEMS folder: ${probRes.count} images\n`;
 }
 
-// 4. Trigger Auto-Organizer PowerShell / Native Script
-app.post('/api/run-organizer', authenticateTeam, (req, res) => {
-    const scriptPath = path.join(BASE_DIR, 'organize_feedback.ps1');
-    if (!fs.existsSync(scriptPath)) {
-        return res.status(404).json({ success: false, error: 'organize_feedback.ps1 script not found!' });
-    }
-
-    const cmd = `powershell -NoProfile -ExecutionPolicy Bypass -File "${scriptPath}"`;
-    exec(cmd, { cwd: BASE_DIR }, (error, stdout, stderr) => {
-        if (error) {
-            console.log('PowerShell unavailable, falling back to Native Node.js Organizer...');
-            try {
-                const output = runNativeNodeOrganizer();
-                return res.json({
-                    success: true,
-                    message: 'Auto-Organizer native engine executed successfully!',
-                    output: output
-                });
-            } catch (fallbackErr) {
-                return res.status(500).json({
-                    success: false,
-                    error: fallbackErr.message
-                });
-            }
-        }
+// Trigger Auto-Organizer Script
+app.post('/api/run-organizer', authenticateTeam, async (req, res) => {
+    try {
+        const output = await runNativeAutoOrganizer();
         res.json({
             success: true,
-            message: 'Auto-Organizer script executed successfully!',
-            output: stdout
+            message: 'Auto-Organizer engine executed successfully!',
+            output: output
         });
-    });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Open Folders API Endpoint
+app.post('/api/open-folder', authenticateTeam, (req, res) => {
+    const { folder } = req.body || {};
+    const folderName = folder || 'RAW_IMAGES';
+
+    // Gate OS Explorer call so it only runs in local non-production desktop mode
+    if (process.env.NODE_ENV !== 'production' && process.platform === 'win32') {
+        const targetPath = path.join(BASE_DIR, folderName);
+        exec(`explorer "${targetPath}"`, (err) => {
+            if (err) {
+                return res.json({ success: true, isLocal: false, message: `Viewing ${folderName} category in Web Hub.` });
+            }
+            res.json({ success: true, isLocal: true, message: `Opened ${folderName} folder in Windows Explorer!` });
+        });
+    } else {
+        // In cloud production, navigate user to the relevant category view in Web Hub
+        res.json({ success: true, isLocal: false, message: `Navigated to ${folderName} category view in Web Hub!` });
+    }
 });
 
 // 5. Get Documented Problems Catalog
-app.get('/api/problems', authenticateTeam, (req, res) => {
+app.get('/api/problems', authenticateTeam, async (req, res) => {
     try {
         const problemsScript = path.join(BASE_DIR, 'organize_problems.ps1');
         let problemList = [];
@@ -467,7 +368,7 @@ app.get('/api/problems', authenticateTeam, (req, res) => {
                             id: `PROBLEM-${problemList.length + 1}`,
                             description: currentComment,
                             filename: imgName,
-                            imageUrl: `/images/PROBLEMS/PROBLEM-${problemList.length + 1}.jpeg`
+                            imageUrl: storage.getFileUrl('PROBLEMS', `PROBLEM-${problemList.length + 1}.jpeg`)
                         });
                         currentComment = '';
                     }
@@ -481,20 +382,6 @@ app.get('/api/problems', authenticateTeam, (req, res) => {
     }
 });
 
-// Helper to get local IP address for LAN sharing
-const os = require('os');
-function getLocalIp() {
-    const interfaces = os.networkInterfaces();
-    for (const name of Object.keys(interfaces)) {
-        for (const iface of interfaces[name]) {
-            if (iface.family === 'IPv4' && !iface.internal) {
-                return iface.address;
-            }
-        }
-    }
-    return '127.0.0.1';
-}
-
 // Catch-all route handler for frontend single-page application
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api') && !req.path.startsWith('/images')) {
@@ -503,12 +390,20 @@ app.get('*', (req, res) => {
         res.status(404).json({ success: false, error: 'Endpoint not found.' });
     }
 });
-app.listen(PORT, '0.0.0.0', () => {
-    const localIp = getLocalIp();
-    console.log(`====================================================`);
-    console.log(`🚀 Kosmo Feedback Hub Web App is running!`);
-    console.log(`🌐 Local URL: http://localhost:${PORT}`);
-    console.log(`📡 Team Network URL: http://${localIp}:${PORT}`);
-    console.log(`📁 Raw Images Folder: ${RAW_DIR}`);
-    console.log(`====================================================`);
+
+// Initialize DB and start server
+db.initDb().then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`====================================================`);
+        console.log(`🚀 Kosmo Feedback Hub Web App is running!`);
+        console.log(`🌐 Server Port: ${PORT}`);
+        if (storage.isCloudStorageAvailable && db.isPostgresAvailable) {
+            console.log(`[PRODUCTION MODE] Active Storage: Supabase Storage Bucket (${process.env.SUPABASE_STORAGE_BUCKET || 'kosmo-feedback'}) | Active DB: Supabase PostgreSQL`);
+        } else {
+            console.log(`[DEV WARNING] Falling back to local storage & JSON db — DATA IS NOT PERSISTENT ON RENDER FREE TIER!`);
+        }
+        console.log(`====================================================`);
+    });
+}).catch(err => {
+    console.error('Failed to initialize database on startup:', err);
 });

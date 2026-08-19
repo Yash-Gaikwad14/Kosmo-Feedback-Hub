@@ -1,47 +1,74 @@
 {
-  "users": ["Yash", "Priyal", "Dipak", "Ankit", "Kunal"],
+  "users": [
+    "Yash",
+    "Priyal",
+    "Dipak",
+    "Ankit",
+    "Kunal"
+  ],
   "problemClusters": [
     {
       "topic": "Response Speed & Slowness",
       "count": 4,
       "severity": "CRITICAL",
       "description": "Chatbot response generation feels slow or takes too long to reply",
-      "sampleUsers": ["itzz_aryan_24", "Ok-Desk7336", "Additional_Winter872"]
+      "sampleUsers": [
+        "itzz_aryan_24",
+        "Ok-Desk7336",
+        "Additional_Winter872"
+      ]
     },
     {
       "topic": "Dark Mode Contrast & Whites",
       "count": 4,
       "severity": "HIGH",
       "description": "Black & white contrast too harsh, white background too bright, needs dark palette adjustments",
-      "sampleUsers": ["AttorneyOk1025", "unk9978", "PhilosopherLoud362"]
+      "sampleUsers": [
+        "AttorneyOk1025",
+        "unk9978",
+        "PhilosopherLoud362"
+      ]
     },
     {
       "topic": "Auto-Scroll Failure",
       "count": 2,
       "severity": "HIGH",
       "description": "Chat does not auto-scroll down after generating response",
-      "sampleUsers": ["Clueless_Cabbage0", "Additional_Winter872"]
+      "sampleUsers": [
+        "Clueless_Cabbage0",
+        "Additional_Winter872"
+      ]
     },
     {
       "topic": "Prompt Length & Structuring",
       "count": 3,
       "severity": "MEDIUM",
       "description": "Generated prompts are too lengthy or hard to understand",
-      "sampleUsers": ["ekzess", "Kunal Paunikar", "Confident_Use_6122"]
+      "sampleUsers": [
+        "ekzess",
+        "Kunal Paunikar",
+        "Confident_Use_6122"
+      ]
     },
     {
       "topic": "Token Quota & Free Tier",
       "count": 2,
       "severity": "MEDIUM",
       "description": "Prompts consumed all free tier tokens, quota counter display confusion",
-      "sampleUsers": ["Dependent_Nose9421", "Ankit Jain"]
+      "sampleUsers": [
+        "Dependent_Nose9421",
+        "Ankit Jain"
+      ]
     },
     {
       "topic": "Login & Link Verification",
       "count": 2,
       "severity": "HIGH",
       "description": "Verification link invalid in different browsers; cannot see landing page after login",
-      "sampleUsers": ["Verification user", "Shivam__kumar"]
+      "sampleUsers": [
+        "Verification user",
+        "Shivam__kumar"
+      ]
     }
   ],
   "imageMetadata": {
@@ -107,6 +134,1806 @@
       "topic": "Background Animation & Quota",
       "notes": "Background animation annoying, 19/20 counter confusing",
       "uploadedAt": "2026-08-13T23:25:03.000Z"
+    },
+    "WhatsApp Image 2026-08-10 at 10.22.02 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.134Z"
+    },
+    "WhatsApp Image 2026-08-10 at 3.50.59 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.141Z"
+    },
+    "WhatsApp Image 2026-08-10 at 3.58.17 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.145Z"
+    },
+    "WhatsApp Image 2026-08-10 at 4.29.47 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.152Z"
+    },
+    "WhatsApp Image 2026-08-10 at 5.08.10 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.157Z"
+    },
+    "WhatsApp Image 2026-08-10 at 7.47.00 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.161Z"
+    },
+    "WhatsApp Image 2026-08-10 at 8.18.10 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.162Z"
+    },
+    "WhatsApp Image 2026-08-10 at 9.37.50 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.164Z"
+    },
+    "WhatsApp Image 2026-08-11 at 11.23.57 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.169Z"
+    },
+    "WhatsApp Image 2026-08-11 at 11.30.31 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.173Z"
+    },
+    "WhatsApp Image 2026-08-11 at 12.14.37 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.175Z"
+    },
+    "WhatsApp Image 2026-08-11 at 6.43.38 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.176Z"
+    },
+    "WhatsApp Image 2026-08-11 at 7.55.39 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.178Z"
+    },
+    "WhatsApp Image 2026-08-11 at 9.27.26 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.181Z"
+    },
+    "WhatsApp Image 2026-08-11 at 9.35.25 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.187Z"
+    },
+    "WhatsApp Image 2026-08-12 at 11.56.59 AM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.191Z"
+    },
+    "WhatsApp Image 2026-08-12 at 2.11.16 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.194Z"
+    },
+    "WhatsApp Image 2026-08-12 at 2.27.23 AM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.198Z"
+    },
+    "WhatsApp Image 2026-08-12 at 3.30.35 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.203Z"
+    },
+    "WhatsApp Image 2026-08-12 at 5.19.21 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.206Z"
+    },
+    "WhatsApp Image 2026-08-13 at 10.20.06 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.209Z"
+    },
+    "WhatsApp Image 2026-08-13 at 10.21.46 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.211Z"
+    },
+    "WhatsApp Image 2026-08-13 at 12.22.52 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.215Z"
+    },
+    "WhatsApp Image 2026-08-13 at 12.39.24 AM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.220Z"
+    },
+    "WhatsApp Image 2026-08-13 at 12.58.02 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.222Z"
+    },
+    "WhatsApp Image 2026-08-13 at 2.09.10 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.225Z"
+    },
+    "WhatsApp Image 2026-08-13 at 3.07.25 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.228Z"
+    },
+    "WhatsApp Image 2026-08-13 at 3.23.10 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.232Z"
+    },
+    "WhatsApp Image 2026-08-13 at 3.37.43 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.234Z"
+    },
+    "WhatsApp Image 2026-08-13 at 6.01.03 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.238Z"
+    },
+    "WhatsApp Image 2026-08-13 at 6.17.19 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.240Z"
+    },
+    "WhatsApp Image 2026-08-13 at 6.20.03 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.243Z"
+    },
+    "WhatsApp Image 2026-08-13 at 7.15.41 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.246Z"
+    },
+    "WhatsApp Image 2026-08-13 at 7.17.45 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.247Z"
+    },
+    "WhatsApp Image 2026-08-13 at 8.43.15 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.249Z"
+    },
+    "WhatsApp Image 2026-08-13 at 9.11.15 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.251Z"
+    },
+    "WhatsApp Image 2026-08-13 at 9.21.55 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.254Z"
+    },
+    "WhatsApp Image 2026-08-14 at 1.41.49 AM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.258Z"
+    },
+    "WhatsApp Image 2026-08-14 at 1.44.38 AM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.261Z"
+    },
+    "WhatsApp Image 2026-08-14 at 12.04.13 AM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.263Z"
+    },
+    "WhatsApp Image 2026-08-14 at 2.25.52 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.266Z"
+    },
+    "WhatsApp Image 2026-08-14 at 4.55.53 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.268Z"
+    },
+    "WhatsApp Image 2026-08-14 at 5.01.50 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.271Z"
+    },
+    "WhatsApp Image 2026-08-15 at 10.08.44 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.273Z"
+    },
+    "WhatsApp Image 2026-08-15 at 10.38.59 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.276Z"
+    },
+    "WhatsApp Image 2026-08-15 at 10.55.50 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.281Z"
+    },
+    "WhatsApp Image 2026-08-15 at 12.07.24 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.285Z"
+    },
+    "WhatsApp Image 2026-08-15 at 12.33.34 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.289Z"
+    },
+    "WhatsApp Image 2026-08-15 at 12.34.03 AM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.292Z"
+    },
+    "WhatsApp Image 2026-08-15 at 2.11.21 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.297Z"
+    },
+    "WhatsApp Image 2026-08-15 at 2.14.48 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.299Z"
+    },
+    "WhatsApp Image 2026-08-15 at 9.56.09 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.302Z"
+    },
+    "WhatsApp Image 2026-08-16 at 10.51.31 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.305Z"
+    },
+    "WhatsApp Image 2026-08-16 at 2.06.43 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.309Z"
+    },
+    "WhatsApp Image 2026-08-16 at 4.05.19 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.311Z"
+    },
+    "WhatsApp Image 2026-08-16 at 5.54.37 PM.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.313Z"
+    },
+    "APP-1.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.326Z"
+    },
+    "APP-10.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.328Z"
+    },
+    "APP-11.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.331Z"
+    },
+    "APP-12.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.333Z"
+    },
+    "APP-13.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.334Z"
+    },
+    "APP-14.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.336Z"
+    },
+    "APP-15.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.339Z"
+    },
+    "APP-16.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.341Z"
+    },
+    "APP-17.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.342Z"
+    },
+    "APP-18.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.344Z"
+    },
+    "APP-19.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.345Z"
+    },
+    "APP-2.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.347Z"
+    },
+    "APP-20.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.350Z"
+    },
+    "APP-21.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.351Z"
+    },
+    "APP-22.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.354Z"
+    },
+    "APP-23.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.355Z"
+    },
+    "APP-24.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.357Z"
+    },
+    "APP-25.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.358Z"
+    },
+    "APP-26.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.360Z"
+    },
+    "APP-27.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.362Z"
+    },
+    "APP-28.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.364Z"
+    },
+    "APP-29.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.366Z"
+    },
+    "APP-3.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.368Z"
+    },
+    "APP-30.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.370Z"
+    },
+    "APP-31.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.371Z"
+    },
+    "APP-32.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.373Z"
+    },
+    "APP-33.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.375Z"
+    },
+    "APP-34.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.376Z"
+    },
+    "APP-35.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.380Z"
+    },
+    "APP-36.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.382Z"
+    },
+    "APP-37.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.384Z"
+    },
+    "APP-38.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.386Z"
+    },
+    "APP-39.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.388Z"
+    },
+    "APP-4.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.390Z"
+    },
+    "APP-40.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.392Z"
+    },
+    "APP-41.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.393Z"
+    },
+    "APP-42.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.396Z"
+    },
+    "APP-43.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.400Z"
+    },
+    "APP-44.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.402Z"
+    },
+    "APP-45.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.405Z"
+    },
+    "APP-46.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.407Z"
+    },
+    "APP-47.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.408Z"
+    },
+    "APP-48.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.410Z"
+    },
+    "APP-49.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.411Z"
+    },
+    "APP-5.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.413Z"
+    },
+    "APP-50.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.415Z"
+    },
+    "APP-51.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.417Z"
+    },
+    "APP-52.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.419Z"
+    },
+    "APP-53.jpg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.421Z"
+    },
+    "APP-54.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.424Z"
+    },
+    "APP-55.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.425Z"
+    },
+    "APP-56.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.427Z"
+    },
+    "APP-57.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.429Z"
+    },
+    "APP-58.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.432Z"
+    },
+    "APP-59.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.434Z"
+    },
+    "APP-6.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.436Z"
+    },
+    "APP-7.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.439Z"
+    },
+    "APP-8.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.440Z"
+    },
+    "APP-9.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.442Z"
+    },
+    "UI-1.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.443Z"
+    },
+    "UI-10.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.446Z"
+    },
+    "UI-11.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.453Z"
+    },
+    "UI-12.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.454Z"
+    },
+    "UI-13.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.457Z"
+    },
+    "UI-14.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.461Z"
+    },
+    "UI-15.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.469Z"
+    },
+    "UI-16.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.472Z"
+    },
+    "UI-17.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.477Z"
+    },
+    "UI-18.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.482Z"
+    },
+    "UI-19.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.486Z"
+    },
+    "UI-2.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.490Z"
+    },
+    "UI-20.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.498Z"
+    },
+    "UI-21.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.507Z"
+    },
+    "UI-22.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.512Z"
+    },
+    "UI-23.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.514Z"
+    },
+    "UI-24.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.517Z"
+    },
+    "UI-25.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.518Z"
+    },
+    "UI-26.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.520Z"
+    },
+    "UI-27.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.522Z"
+    },
+    "UI-28.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.524Z"
+    },
+    "UI-29.jpg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.526Z"
+    },
+    "UI-3.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.530Z"
+    },
+    "UI-30.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.533Z"
+    },
+    "UI-31.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.535Z"
+    },
+    "UI-4.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.541Z"
+    },
+    "UI-5.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.546Z"
+    },
+    "UI-6.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.549Z"
+    },
+    "UI-7.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.551Z"
+    },
+    "UI-8.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.553Z"
+    },
+    "UI-9.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.557Z"
+    },
+    "BOTH-1.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.560Z"
+    },
+    "BOTH-10.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.561Z"
+    },
+    "BOTH-11.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.564Z"
+    },
+    "BOTH-12.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.565Z"
+    },
+    "BOTH-13.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.567Z"
+    },
+    "BOTH-14.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.570Z"
+    },
+    "BOTH-15.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.572Z"
+    },
+    "BOTH-16.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.574Z"
+    },
+    "BOTH-17.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.576Z"
+    },
+    "BOTH-18.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.579Z"
+    },
+    "BOTH-19.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.581Z"
+    },
+    "BOTH-2.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.584Z"
+    },
+    "BOTH-20.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.587Z"
+    },
+    "BOTH-21.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.590Z"
+    },
+    "BOTH-22.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.592Z"
+    },
+    "BOTH-23.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.593Z"
+    },
+    "BOTH-24.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.595Z"
+    },
+    "BOTH-25.jpg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.597Z"
+    },
+    "BOTH-26.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.600Z"
+    },
+    "BOTH-27.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.602Z"
+    },
+    "BOTH-28.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.605Z"
+    },
+    "BOTH-29.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.606Z"
+    },
+    "BOTH-3.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.608Z"
+    },
+    "BOTH-4.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.610Z"
+    },
+    "BOTH-5.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.612Z"
+    },
+    "BOTH-6.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.615Z"
+    },
+    "BOTH-7.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.617Z"
+    },
+    "BOTH-8.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.621Z"
+    },
+    "BOTH-9.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.623Z"
+    },
+    "PROBLEM-1.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.627Z"
+    },
+    "PROBLEM-10.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.629Z"
+    },
+    "PROBLEM-11.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.632Z"
+    },
+    "PROBLEM-12.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.636Z"
+    },
+    "PROBLEM-13.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.639Z"
+    },
+    "PROBLEM-14.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.646Z"
+    },
+    "PROBLEM-15.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.654Z"
+    },
+    "PROBLEM-16.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.659Z"
+    },
+    "PROBLEM-17.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.662Z"
+    },
+    "PROBLEM-18.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.666Z"
+    },
+    "PROBLEM-19.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.675Z"
+    },
+    "PROBLEM-2.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.680Z"
+    },
+    "PROBLEM-20.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.682Z"
+    },
+    "PROBLEM-21.jpg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.684Z"
+    },
+    "PROBLEM-22.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.686Z"
+    },
+    "PROBLEM-23.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.689Z"
+    },
+    "PROBLEM-24.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.691Z"
+    },
+    "PROBLEM-25.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.692Z"
+    },
+    "PROBLEM-3.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.696Z"
+    },
+    "PROBLEM-4.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.699Z"
+    },
+    "PROBLEM-5.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.701Z"
+    },
+    "PROBLEM-6.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.703Z"
+    },
+    "PROBLEM-7.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.705Z"
+    },
+    "PROBLEM-8.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.707Z"
+    },
+    "PROBLEM-9.jpeg": {
+      "uploadedBy": "Yash",
+      "channel": "WhatsApp",
+      "userHandle": "Community Feedback",
+      "severity": "MEDIUM",
+      "topic": "General Feedback",
+      "notes": "Historical feedback screenshot",
+      "uploadedAt": "2026-08-19T07:59:15.712Z"
     }
   }
 }

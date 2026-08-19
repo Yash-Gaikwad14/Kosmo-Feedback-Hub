@@ -13,12 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let savedPasscode = sessionStorage.getItem('kosmo_team_passcode') || '';
 
     // DOM Elements
+    const toastContainer = document.getElementById('toastContainer');
     const statRaw = document.getElementById('statRaw');
     const statApp = document.getElementById('statApp');
     const statUi = document.getElementById('statUi');
     const statBoth = document.getElementById('statBoth');
     const statProblems = document.getElementById('statProblems');
 
+    const openFolderBtn = document.getElementById('openFolderBtn');
     const runScriptBtn = document.getElementById('runScriptBtn');
     const lockHubBtn = document.getElementById('lockHubBtn');
     const scriptStatusBadge = document.getElementById('scriptStatusBadge');
@@ -29,8 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('fileInput');
     const filePreviewList = document.getElementById('filePreviewList');
     const channelSelect = document.getElementById('channelSelect');
-    const uploaderName = document.getElementById('uploaderName');
+    const uploaderSelect = document.getElementById('uploaderSelect');
     const submitUploadBtn = document.getElementById('submitUploadBtn');
+    const uploadStatusBanner = document.getElementById('uploadStatusBanner');
+    const uploadProgressContainer = document.getElementById('uploadProgressContainer');
+    const uploadProgressBar = document.getElementById('uploadProgressBar');
+    const uploadProgressText = document.getElementById('uploadProgressText');
 
     const imageGrid = document.getElementById('imageGrid');
     const problemBoard = document.getElementById('problemBoard');
@@ -51,14 +57,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightboxImg = document.getElementById('lightboxImg');
     const lightboxTitle = document.getElementById('lightboxTitle');
     const lightboxCat = document.getElementById('lightboxCat');
+    const lightboxUserMeta = document.getElementById('lightboxUserMeta');
     const lightboxFilename = document.getElementById('lightboxFilename');
     const lightboxSize = document.getElementById('lightboxSize');
     const lightboxDate = document.getElementById('lightboxDate');
     const lightboxDownload = document.getElementById('lightboxDownload');
     const closeLightbox = document.getElementById('closeLightbox');
 
+    // User & Controls Elements
+    const activeUserSelect = document.getElementById('activeUserSelect');
+    const memberFilterSelect = document.getElementById('memberFilterSelect');
+    const sortSelect = document.getElementById('sortSelect');
+    const commonProblemsGrid = document.getElementById('commonProblemsGrid');
+
     // ---------------------------------------------------------
-    // AUTHENTICATED FETCH HELPER
+    // TOAST NOTIFICATIONS SYSTEM
+    // ---------------------------------------------------------
+    function showToast(message, type = 'info', duration = 4000) {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        let icon = 'fa-circle-info';
+        if (type === 'success') icon = 'fa-circle-check';
+        if (type === 'error') icon = 'fa-circle-exclamation';
+
+        toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+
+    // ---------------------------------------------------------
+    // AUTHENTICATED FETCH HELPER (Header Only)
     // ---------------------------------------------------------
     async function authFetch(url, options = {}) {
         options.headers = options.headers || {};
@@ -119,7 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 savedPasscode = enteredPasscode;
                 sessionStorage.setItem('kosmo_team_passcode', savedPasscode);
                 hideLoginModal();
+                showToast('Welcome to Kosmo Feedback Hub!', 'success');
                 loadStats();
+                loadCommonProblems();
                 loadGallery(currentCategory);
             } else {
                 loginErrorText.textContent = data.error || 'Incorrect Team Passcode.';
@@ -141,54 +178,65 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoginModal('Dashboard locked. Re-enter Team Passcode to access.');
     });
 
-    // User & Controls Elements
-    const activeUserSelect = document.getElementById('activeUserSelect');
-    const memberFilterSelect = document.getElementById('memberFilterSelect');
-    const sortSelect = document.getElementById('sortSelect');
-    const commonProblemsGrid = document.getElementById('commonProblemsGrid');
-
     // Restore active user from session or default
     if (sessionStorage.getItem('kosmo_active_user')) {
-        activeUserSelect.value = sessionStorage.getItem('kosmo_active_user');
-        uploaderName.value = sessionStorage.getItem('kosmo_active_user');
+        const savedUser = sessionStorage.getItem('kosmo_active_user');
+        if (activeUserSelect) activeUserSelect.value = savedUser;
+        if (uploaderSelect) uploaderSelect.value = savedUser;
     }
 
-    activeUserSelect.addEventListener('change', async (e) => {
-        if (e.target.value === 'ADD_NEW') {
-            const newName = prompt('Enter new Team Member profile name (e.g. Rahul):');
-            if (newName && newName.trim()) {
-                const cleanName = newName.trim();
-                try {
-                    const res = await authFetch('/api/add-user', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username: cleanName })
-                    });
-                    const data = await res.json();
-                    if (data.success && data.users) {
-                        populateUserDropdowns(data.users, cleanName);
-                    }
-                } catch (err) {
-                    console.error('Failed to add user:', err);
-                }
-            } else {
-                activeUserSelect.value = sessionStorage.getItem('kosmo_active_user') || 'Yash';
-            }
+    // Team Member Dropdown Handlers (Synchronized)
+    function handleUserDropdownChange(e) {
+        const val = e.target.value;
+        if (val === 'ADD_NEW') {
+            addNewMemberPrompt();
             return;
         }
+        sessionStorage.setItem('kosmo_active_user', val);
+        activeUserSelect.value = val;
+        uploaderSelect.value = val;
+    }
 
-        sessionStorage.setItem('kosmo_active_user', e.target.value);
-        uploaderName.value = e.target.value;
-    });
+    activeUserSelect.addEventListener('change', handleUserDropdownChange);
+    uploaderSelect.addEventListener('change', handleUserDropdownChange);
+
+    async function addNewMemberPrompt() {
+        const newName = prompt('Enter new Team Member profile name (e.g. Rahul):');
+        if (newName && newName.trim()) {
+            const cleanName = newName.trim();
+            try {
+                const res = await authFetch('/api/add-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: cleanName })
+                });
+                const data = await res.json();
+                if (data.success && data.users) {
+                    populateUserDropdowns(data.users, cleanName);
+                    showToast(`Added @${cleanName} to Team Members!`, 'success');
+                }
+            } catch (err) {
+                console.error('Failed to add user:', err);
+                showToast('Failed to add new team member profile.', 'error');
+            }
+        } else {
+            const fallback = sessionStorage.getItem('kosmo_active_user') || 'Yash';
+            activeUserSelect.value = fallback;
+            uploaderSelect.value = fallback;
+        }
+    }
 
     function populateUserDropdowns(usersList, activeUser) {
         if (!usersList || usersList.length === 0) return;
         
-        // Active User Dropdown
-        activeUserSelect.innerHTML = usersList.map(u => `<option value="${u}">@${u}</option>`).join('') + `<option value="ADD_NEW">+ Add New Member...</option>`;
-        activeUserSelect.value = activeUser || usersList[0];
-        sessionStorage.setItem('kosmo_active_user', activeUserSelect.value);
-        uploaderName.value = activeUserSelect.value;
+        const optionsHtml = usersList.map(u => `<option value="${u}">@${u}</option>`).join('') + `<option value="ADD_NEW">+ Add New Member...</option>`;
+        activeUserSelect.innerHTML = optionsHtml;
+        uploaderSelect.innerHTML = optionsHtml;
+
+        const targetUser = activeUser || usersList[0];
+        activeUserSelect.value = targetUser;
+        uploaderSelect.value = targetUser;
+        sessionStorage.setItem('kosmo_active_user', targetUser);
 
         // Member Filter Dropdown
         memberFilterSelect.innerHTML = `<option value="ALL">All Team Members</option>` + usersList.map(u => `<option value="${u}">Added by @${u}</option>`).join('');
@@ -215,12 +263,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.error('Failed to load common problems:', err);
+            commonProblemsGrid.innerHTML = `
+                <div class="error-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p>Unable to load problem clusters.</p>
+                    <button onclick="loadCommonProblems()" class="btn btn-secondary retry-btn"><i class="fa-solid fa-rotate-right"></i> Retry</button>
+                </div>
+            `;
         }
     }
 
     function renderCommonProblems(clusters) {
         if (!clusters || clusters.length === 0) {
-            commonProblemsGrid.innerHTML = `<p class="empty-msg">No common problem clusters detected yet.</p>`;
+            commonProblemsGrid.innerHTML = `<p class="empty-msg" style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">No common problem clusters detected yet.</p>`;
             return;
         }
 
@@ -277,6 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const currentActive = sessionStorage.getItem('kosmo_active_user') || data.users[0];
                     populateUserDropdowns(data.users, currentActive);
                 }
+            } else {
+                showToast(`Failed to load stats: ${data.error}`, 'error');
             }
         } catch (err) {
             console.error('Failed to fetch stats:', err);
@@ -284,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // 2. GALLERY FETCHING & RENDERING
+    // 2. GALLERY FETCHING & RENDERING (With Retry Error UI)
     // ---------------------------------------------------------
     async function loadGallery(category = 'ALL') {
         if (!savedPasscode) {
@@ -309,17 +366,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const sortVal = sortSelect.value || 'severity';
             const userVal = memberFilterSelect.value || 'ALL';
             const res = await authFetch(`/api/images?category=${category}&sort=${sortVal}&user=${userVal}`);
+            
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
             const data = await res.json();
 
             if (data.success) {
                 allImagesData = data.images;
                 renderGallery(allImagesData);
             } else {
-                imageGrid.innerHTML = `<p class="error-msg">Error: ${data.error}</p>`;
+                renderGalleryError(data.error || 'Failed to fetch gallery images');
             }
         } catch (err) {
             console.error('Failed to fetch gallery:', err);
+            renderGalleryError(err.message || 'Network error fetching feedback gallery');
         }
+    }
+
+    function renderGalleryError(errMsg) {
+        imageGrid.innerHTML = `
+            <div class="error-box">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <p>Unable to load gallery images (${errMsg}).</p>
+                <button id="retryGalleryBtn" class="btn btn-secondary retry-btn"><i class="fa-solid fa-rotate-right"></i> Retry Loading</button>
+            </div>
+        `;
+        document.getElementById('retryGalleryBtn')?.addEventListener('click', () => loadGallery(currentCategory));
     }
 
     function renderGallery(images) {
@@ -346,13 +418,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const dateStr = new Date(img.mtime).toLocaleString();
             const badgeClass = getBadgeClass(img.category);
             const severityClass = getSeverityBadgeClass(img.severity);
-            const authUrl = `${img.url}?passcode=${encodeURIComponent(savedPasscode)}`;
             const userTag = img.uploadedBy || 'Yash';
 
             return `
-                <div class="img-card" data-url="${authUrl}" data-name="${img.name}" data-cat="${img.category}" data-user="${userTag}" data-sev="${img.severity}" data-topic="${img.topic}" data-size="${sizeKb} KB" data-date="${dateStr}">
+                <div class="img-card" data-url="${img.url}" data-name="${img.name}" data-cat="${img.category}" data-user="${userTag}" data-sev="${img.severity}" data-topic="${img.topic}" data-size="${sizeKb} KB" data-date="${dateStr}">
                     <div class="img-wrapper">
-                        <img src="${authUrl}" alt="${img.name}" loading="lazy">
+                        <img src="${img.url}" alt="${img.name}" loading="lazy">
                         <div class="img-zoom-overlay">
                             <i class="fa-solid fa-expand"></i>
                         </div>
@@ -402,30 +473,39 @@ document.addEventListener('DOMContentLoaded', () => {
         problemBoard.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading documented problems...</div>`;
         try {
             const res = await authFetch('/api/problems');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
             const data = await res.json();
             if (data.success) {
                 if (data.problems.length === 0) {
-                    problemBoard.innerHTML = `<p class="empty-msg">No documented problems found.</p>`;
+                    problemBoard.innerHTML = `<p class="empty-msg" style="text-align: center; padding: 2rem; color: var(--text-muted);">No documented problems found.</p>`;
                     return;
                 }
                 problemBoard.innerHTML = data.problems.map(prob => {
-                    const authImgUrl = `${prob.imageUrl}?passcode=${encodeURIComponent(savedPasscode)}`;
                     return `
                         <div class="problem-card">
                             <div class="problem-id">${prob.id}</div>
                             <div class="problem-desc">${prob.description}</div>
-                            <img src="${authImgUrl}" class="problem-thumb" alt="${prob.id}" onclick="openLightboxModal({url: '${authImgUrl}', name: '${prob.filename}', category: 'PROBLEMS', size: 'N/A', date: 'Documented'})">
+                            <img src="${prob.imageUrl}" class="problem-thumb" alt="${prob.id}" onclick="openLightboxModal({url: '${prob.imageUrl}', name: '${prob.filename}', category: 'PROBLEMS', size: 'N/A', date: 'Documented'})">
                         </div>
                     `;
                 }).join('');
             }
         } catch (err) {
             console.error('Failed to load problems:', err);
+            problemBoard.innerHTML = `
+                <div class="error-box">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <p>Unable to load problems board (${err.message}).</p>
+                    <button id="retryProblemsBtn" class="btn btn-secondary retry-btn"><i class="fa-solid fa-rotate-right"></i> Retry Loading</button>
+                </div>
+            `;
+            document.getElementById('retryProblemsBtn')?.addEventListener('click', loadProblemBoard);
         }
     }
 
     // ---------------------------------------------------------
-    // 4. DROPZONE & UPLOAD HANDLERS
+    // 4. DROPZONE & UPLOAD HANDLERS (With Progress & Feedback)
     // ---------------------------------------------------------
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropzone.addEventListener(eventName, preventDefaults, false);
@@ -446,8 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dropzone.addEventListener('drop', (e) => {
         const dt = e.dataTransfer;
-        const files = dt.files;
-        handleFiles(files);
+        handleFiles(dt.files);
     });
 
     fileInput.addEventListener('change', (e) => {
@@ -462,59 +541,116 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span>${f.name}</span>
             </div>
         `).join('');
+        uploadStatusBanner.classList.add('hidden');
     }
 
     uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (currentUploadFiles.length === 0) {
-            alert('Please select or drag at least one raw image file!');
+            showToast('Please select or drag at least one raw image file!', 'error');
             return;
         }
 
         submitUploadBtn.disabled = true;
         submitUploadBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading...`;
+        uploadProgressContainer.classList.remove('hidden');
+        uploadProgressBar.style.width = '30%';
+        uploadProgressText.textContent = `Uploading ${currentUploadFiles.length} file(s)...`;
 
         const formData = new FormData();
         currentUploadFiles.forEach(file => {
             formData.append('photos', file);
         });
         formData.append('channel', channelSelect.value);
-        formData.append('uploader', uploaderName.value || 'Anonymous');
+        formData.append('uploader', uploaderSelect.value || 'Yash');
 
         try {
+            uploadProgressBar.style.width = '70%';
             const res = await authFetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
             const data = await res.json();
 
+            uploadProgressBar.style.width = '100%';
+
             if (data.success) {
+                showToast(`✅ Uploaded ${data.files.length} screenshot(s) by @${uploaderSelect.value}!`, 'success', 5000);
                 appendTerminalLog(`\n[UPLOAD SUCCESS] ${data.message}`);
+
+                // Render Upload Status Banner
+                uploadStatusBanner.innerHTML = `
+                    <div class="banner-header">
+                        <span><i class="fa-solid fa-circle-check"></i> Upload Completed Successfully</span>
+                        <span class="user-pill">@${uploaderSelect.value}</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">${data.message}</p>
+                    <div class="uploaded-thumbs-grid">
+                        ${data.files.map(f => `<img src="${f.url}" class="uploaded-thumb" title="${f.filename}">`).join('')}
+                    </div>
+                `;
+                uploadStatusBanner.classList.remove('hidden');
+
                 currentUploadFiles = [];
                 filePreviewList.innerHTML = '';
                 fileInput.value = '';
                 loadStats();
                 loadGallery(currentCategory);
             } else {
+                showToast(`Upload failed: ${data.error}`, 'error');
                 appendTerminalLog(`\n[UPLOAD ERROR] ${data.error}`);
             }
         } catch (err) {
             console.error('Upload failed:', err);
+            showToast(`Upload failed: ${err.message}`, 'error');
         } finally {
             submitUploadBtn.disabled = false;
             submitUploadBtn.innerHTML = `<i class="fa-solid fa-upload"></i> Upload Raw Images`;
+            setTimeout(() => {
+                uploadProgressContainer.classList.add('hidden');
+                uploadProgressBar.style.width = '0%';
+            }, 800);
         }
     });
 
     // ---------------------------------------------------------
-    // 5. BACKEND SCRIPT TRIGGER
+    // 5. OPEN FOLDERS & AUTO-ORGANIZER HANDLERS
     // ---------------------------------------------------------
+    openFolderBtn.addEventListener('click', () => openFolderAction('RAW'));
+
+    async function openFolderAction(folderName = 'RAW') {
+        showToast(`📂 Opening ${folderName} organized folder...`, 'info');
+        try {
+            const res = await authFetch('/api/open-folder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ folder: folderName })
+            });
+            const data = await res.json();
+            if (data.message) {
+                showToast(data.message, 'success');
+            }
+        } catch (err) {
+            console.error('Open folder error:', err);
+        }
+        
+        // Switch gallery to that category and scroll
+        const tabToClick = document.querySelector(`.tab-btn[data-category="${folderName}"]`) || document.querySelector(`.tab-btn[data-category="ALL"]`);
+        if (tabToClick) tabToClick.click();
+
+        const gallerySection = document.getElementById('gallerySection');
+        if (gallerySection) {
+            gallerySection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
     runScriptBtn.addEventListener('click', async () => {
         runScriptBtn.disabled = true;
         runScriptBtn.innerHTML = `<i class="fa-solid fa-gear fa-spin"></i> Organizing...`;
         scriptStatusBadge.textContent = 'Running';
         scriptStatusBadge.className = 'badge badge-purple';
 
+        showToast('⚡ Auto-Organizer started! Categorizing screenshots...', 'info');
         appendTerminalLog(`\n> powershell -ExecutionPolicy Bypass -File organize_feedback.ps1\nExecuting auto-organizer backend script...`);
 
         try {
@@ -524,16 +660,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 scriptStatusBadge.textContent = 'Completed';
                 scriptStatusBadge.className = 'badge badge-green';
+                showToast('🎉 Feedback organized into APP, UI, BOTH & PROBLEMS folders!', 'success', 5000);
                 appendTerminalLog(`\n${data.output}\n[DONE] Successfully categorized and organized images!`);
                 loadStats();
                 loadGallery(currentCategory);
             } else {
                 scriptStatusBadge.textContent = 'Failed';
                 scriptStatusBadge.className = 'badge badge-rose';
+                showToast(`Auto-Organizer failed: ${data.error}`, 'error');
                 appendTerminalLog(`\n[ERROR] ${data.error}\n${data.stderr || ''}`);
             }
         } catch (err) {
             console.error('Script execution error:', err);
+            showToast('Auto-Organizer execution error', 'error');
         } finally {
             runScriptBtn.disabled = false;
             runScriptBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Run Auto-Organizer`;
@@ -559,11 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statCards.forEach(card => {
         card.addEventListener('click', () => {
             const cat = card.dataset.cat;
-            tabBtns.forEach(b => {
-                if (b.dataset.category === cat) {
-                    b.click();
-                }
-            });
+            openFolderAction(cat);
         });
     });
 
@@ -584,10 +719,8 @@ document.addEventListener('DOMContentLoaded', () => {
         lightboxDate.textContent = info.date;
         lightboxDownload.href = info.url;
 
-        // Populate User & Severity Meta if available
-        const userMeta = document.getElementById('lightboxUserMeta');
-        if (userMeta) {
-            userMeta.textContent = info.uploadedBy ? `@${info.uploadedBy}` : '@Yash';
+        if (lightboxUserMeta) {
+            lightboxUserMeta.textContent = info.uploadedBy ? `@${info.uploadedBy}` : '@Yash';
         }
 
         lightbox.classList.remove('modal-hidden');

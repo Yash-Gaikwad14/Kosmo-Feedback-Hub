@@ -1,8 +1,8 @@
 # Technical Architecture & System Design
 ## Kosmo Feedback Hub & Auto-Organizer Web App
 
-- **System Version**: 1.0.0
-- **Architecture Pattern**: Client-Server with Native PowerShell Script Engine Integration
+- **System Version**: 2.1.0
+- **Architecture Pattern**: Express REST Server with Supabase Storage & PostgreSQL Persistence
 
 ---
 
@@ -22,19 +22,18 @@
 |                                (server.js)                            |
 |                                                                       |
 |  +--------------------+  +--------------------+  +-----------------+  |
-|  | Multer File Upload |  | Static Image Serve |  | Script Executor |  |
+|  | Storage Abstraction|  | Postgres / DB JSON |  | Native Organizer|  |
+|  |    (lib/storage)   |  |      (lib/db)      |  |      Engine     |  |
 |  +----------+---------+  +----------+---------+  +--------+--------+  |
 +-------------|-----------------------|-------------------|-------------+
-              | Raw Save              | Read              | exec()
+              | Upload / Copy         | Query / Save      | Categorize
               v                       v                   v
-+-----------------------------------------------------------------------+
-|                          LOCAL FILE SYSTEM                            |
-|                                                                       |
-|  [ RAW_IMAGES/ ] -----> [ organize_feedback.ps1 ] -----> [ APP/ ]     |
-|  (Raw Screenshots)      [ organize_problems.ps1 ]      [ UI/ ]      |
-|                                                         [ BOTH/ ]    |
-|                                                         [ PROBLEMS/ ]|
-+-----------------------------------------------------------------------+
++------------------------------------+  +-------------------------------+
+|          SUPABASE STORAGE          |  |      SUPABASE POSTGRESQL      |
+|  [ raw/ ]      [ app/ ]            |  |  (team_users, image_metadata, |
+|  [ ui/ ]       [ both/ ]           |  |       problem_clusters)       |
+|  [ problems/ ]                     |  +-------------------------------+
++------------------------------------+
 ```
 
 ---
@@ -42,26 +41,31 @@
 ## 2. Directory Structure Layout
 
 ```
-c:\Users\Yashg\Downloads\Kosmo\
+kosmo-feedback-hub/
 ├── docs/                           # Documentation Root
 │   ├── PRD.md                      # Product Requirements Document
 │   ├── ARCHITECTURE.md             # System & Technical Architecture
 │   ├── PROJECT_STATUS.md           # Feedback & Problem Status Ledger
 │   └── DECISIONS.md                # Architecture Decision Records (ADR)
-├── RAW_IMAGES/                     # Team Raw Image Upload Destination (63+ files)
-├── APP/                            # Categorized APP images (APP-1.jpeg .. APP-59.jpeg)
-├── UI/                             # Categorized UI images (UI-1.jpeg .. UI-31.jpeg)
-├── BOTH/                           # Categorized BOTH images (BOTH-1.jpeg .. BOTH-29.jpeg)
-├── PROBLEMS/                       # Categorized PROBLEMS images (PROBLEM-1.jpeg .. PROBLEM-25.jpeg)
-├── organize_feedback.ps1           # Primary backend categorization & sequence engine
-├── organize_problems.ps1           # Standalone problem directory builder
-├── fix_sequence.ps1                # Zero-gap sequence repair utility
-├── server.js                       # Express Backend Server (API & Script Runner)
-├── package.json                    # Node.js project manifest
+├── lib/                            # Core Services & Abstractions
+│   ├── storage.js                  # Supabase Storage Service with Local Fallback
+│   └── db.js                       # PostgreSQL Database Service with Local JSON Fallback
+├── scripts/                        # Utility & Migration Engine
+│   └── seed.js                     # Storage & DB Cloud Seed Script
+├── RAW_IMAGES/                     # Local Dev Raw Image Directory
+├── APP/                            # Local Dev APP Category Directory
+├── UI/                             # Local Dev UI Category Directory
+├── BOTH/                           # Local Dev BOTH Category Directory
+├── PROBLEMS/                       # Local Dev PROBLEMS Category Directory
+├── organize_feedback.ps1           # PowerShell Categorization Script (Dev Utility)
+├── organize_problems.ps1           # Standalone Problem Catalog Builder
+├── server.js                       # Express Backend Server (API & Cloud Controller)
+├── .env.example                    # Template Environment Config
+├── package.json                    # Node.js Project Manifest
 └── public/                         # Web UI Assets
-    ├── index.html                  # Responsive Dashboard Page Layout
-    ├── styles.css                  # Dark Mode Glassmorphic Styling System
-    └── app.js                      # Client-side UI & REST API Controller
+    ├── index.html                  # Responsive Dashboard Layout
+    ├── styles.css                  # Glassmorphic Styling & Toast System
+    └── app.js                      # Client Controller & Auth Engine
 ```
 
 ---
@@ -69,62 +73,36 @@ c:\Users\Yashg\Downloads\Kosmo\
 ## 3. Backend Component Specification (`server.js`)
 
 ### Technology Stack
-- **Runtime**: Node.js v24.15.0+
+- **Runtime**: Node.js v20+
 - **Framework**: Express.js
-- **Middleware**: `multer` (multipart/form-data upload), `cors` (Cross-Origin Resource Sharing)
-- **Execution Bridge**: `child_process.exec` for running PowerShell scripts
+- **Middleware**: `multer` (in-memory file buffer processing), `cors`
+- **Cloud Storage**: `@supabase/supabase-js` (Supabase Storage API)
+- **Database**: `pg` (PostgreSQL pooled connection via Supabase Transaction Pooler)
 
 ### REST API Endpoints
 
 #### 1. `GET /api/stats`
-Returns total file counts across `RAW_IMAGES`, `APP`, `UI`, `BOTH`, `PROBLEMS`, and untracked root images.
-```json
-{
-  "rawCount": 63,
-  "appCount": 59,
-  "uiCount": 31,
-  "bothCount": 29,
-  "problemCount": 25,
-  "untrackedCount": 0
-}
-```
+Returns total file counts across `RAW`, `APP`, `UI`, `BOTH`, `PROBLEMS`, and active team members.
 
 #### 2. `GET /api/images`
-Returns image list filtered by category parameter (`?category=APP|UI|BOTH|PROBLEMS|RAW|UNTRACKED`).
-```json
-[
-  {
-    "filename": "APP-1.jpeg",
-    "category": "APP",
-    "url": "/images/APP/APP-1.jpeg",
-    "size": 40738,
-    "lastModified": "2026-08-16T14:52:04.000Z"
-  }
-]
-```
+Returns image list filtered by category parameter (`?category=APP|UI|BOTH|PROBLEMS|RAW`) with user filter and priority sorting.
 
 #### 3. `POST /api/upload`
-Accepts single or multiple files uploaded by team members, writing them to `RAW_IMAGES/`.
+Accepts multipart file uploads, writing directly to Supabase Storage (or local storage fallback), saving attribution metadata in PostgreSQL.
 
 #### 4. `POST /api/run-organizer`
-Triggers `powershell -ExecutionPolicy Bypass -File organize_feedback.ps1` asynchronously, returning output logs and execution status.
+Triggers native auto-organizer engine to copy objects between category prefixes with zero-gap 1-indexed filenames.
 
-#### 5. `GET /api/problems`
-Returns structured catalog of all 25 identified problems with description and image path.
+#### 5. `POST /api/open-folder`
+Navigates web UI category view tab in cloud production (or opens Windows Explorer in local desktop mode).
 
----
-
-## 4. Frontend Component Specification (`public/`)
-
-### Architecture
-- Pure Vanilla JS / ES6 Modules + Glassmorphic CSS Design Tokens (No heavy framework dependencies required for high speed and instant load times).
-- Real-time polling or refresh after script execution.
-- Image modal viewer with keyboard navigation (`Esc`, `ArrowLeft`, `ArrowRight`).
+#### 6. `GET /api/problems`
+Returns catalog of documented problems with image URLs and descriptions.
 
 ---
 
-## 5. Security & File Safety
+## 4. Security & Authentication
 
-- **Path Traversal Protection**: Inputs are sanitized using Node `path.basename()`.
-- **File Extension Whitelist**: Only `.jpg`, `.jpeg`, `.png`, `.webp` allowed.
-- **Non-Destructive Processing**: Backend scripts use `Copy-Item -Force` rather than moving/deleting raw files, ensuring raw screenshots are permanently preserved in `RAW_IMAGES/`.
+- **Header Authentication**: Requests require `x-team-passcode` matching `TEAM_PASSCODE` env variable.
+- **Query String Passcodes Disallowed**: Passcodes passed via URL parameters are rejected to prevent log leaks.
+- **Sanitized Inputs**: Filenames sanitized against path traversal vulnerabilities.

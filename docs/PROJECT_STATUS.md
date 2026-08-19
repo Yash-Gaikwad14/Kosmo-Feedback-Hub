@@ -24,7 +24,7 @@
 
 - **GitHub Repository**: [https://github.com/Yash-Gaikwad14/Kosmo-Feedback-Hub.git](https://github.com/Yash-Gaikwad14/Kosmo-Feedback-Hub.git)
 - **Render Production Service**: [https://kosmo-feedback-hub.onrender.com](https://kosmo-feedback-hub.onrender.com)
-- **Team Access Passcode**: `kosmo2026`
+- **Team Access Passcode**: Set via `TEAM_PASSCODE` environment variable
 
 ---
 
